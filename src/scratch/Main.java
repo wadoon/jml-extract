@@ -45,11 +45,15 @@ public class Main {
         JavacTask task = javac.getTask(out, fileManager, null, null, null, compilationUnits);
         var parsedElements = task.parse();
         var elements = task.analyze();
+
+        var e = task.getElements();
+        task.getElements().getTypeElement()
         for (var cu : parsedElements) {
             TreeVisitor<?, ?> visitor = new MyTreeScanner();
             cu.accept(visitor, null);
         }
         for (var clazz : elements) {
+            e.printElements(out, clazz);
             //e.getEnclosingElement().
             for (var method : clazz.getEnclosedElements()) {
                 for(var subs : method.getEnclosedElements()) {
