@@ -7,13 +7,19 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Set;
 
 /**
+ * This service helps to identify JML comments and to extract basic information
+ *
  * @author Alexander Weigl
  * @version 1 (1/31/20)
  */
 public interface IJmlDetection {
     /**
-     * Checks whether a given String is a JML comment. This check should be simple and fast, and does not need to decide
+     * Checks whether a given String is a JML comment.
+     *
+     * This check should
+     * be simple and fast, and does not need to decide
      * whether the comment is valid.
+     *
      * Refer to the manual: http://www.eecs.ucf.edu/~leavens/JML/jmlrefman/jmlrefman_4.html#SEC25
      *
      * @param comment a non-null string
