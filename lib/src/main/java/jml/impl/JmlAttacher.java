@@ -1,0 +1,199 @@
+package jml.impl;
+
+import jml.ASTProperties;
+import jml.services.IJmlAttacher;
+import org.eclipse.jdt.core.dom.*;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.Predicate;
+
+import static org.eclipse.jdt.core.dom.ASTNode.*;
+
+/**
+ * @author Alexander Weigl
+ * @version 1 (2/1/20)
+ */
+public class JmlAttacher implements IJmlAttacher {
+    @Override
+    public void attach(CompilationUnit ast, Collection<Comment> jmlComments) {
+        for (Comment c : jmlComments) {
+            attachComment(ast, c);
+        }
+    }
+
+    private void attachComment(CompilationUnit ast, Comment c) {
+        var type = ASTProperties.getJmlCommentType(c);
+        if (type == null) {
+            System.err.println("Given jml comment has to type. The IJmlDetection wrong? " +
+                    ASTProperties.getContent(c));
+            return;
+        }
+
+        switch (type) {
+            case UNKNOWN:
+            case GHOST_FIELD:
+            case MODEL:
+            case CLASS_INVARIANT:
+                attachToParent(c, TYPE_DECLARATION);
+                break;
+            case LOOP_INVARIANT:
+                attachToNextNode(c, WHILE_STATEMENT, FOR_STATEMENT, ENHANCED_FOR_STATEMENT, DO_STATEMENT);
+                break;
+            case BLOCK_CONTRACT:
+                attachToNextNode(c, BLOCK);
+            case METHOD_CONTRACT:
+                attachToNextNode(c, METHOD_DECLARATION);
+                break;
+            case MODIFIER:
+                attachToNextNode(c, FIELD_DECLARATION, METHOD_DECLARATION);
+                break;
+            case GHOST_SET:
+            case ASSUME:
+            case ASSERT:
+                insertIntoBlock(c, Statement.class);
+                break;
+        }
+
+    }
+
+    private void insertIntoBlock(Comment comment, Class<?>... clazzes) {
+        ASTNode node = narrowstContainer(comment);
+        if (node == null || !(node instanceof Block)) {
+            System.err.println("There is no parent so I am not able to get on following nodes.");
+        } else {
+            Block b = (Block) node;
+            //var predicate = createTypePredicate(clazzes);
+
+            int idx = 0;
+            for (; idx < b.statements().size(); idx++) {
+                ASTNode statement = (ASTNode) b.statements().get(idx);
+                if (statement.getStartPosition() >= comment.getLength() + comment.getStartPosition()) {
+                    break;
+                }
+            }
+            final var empty = comment.getAST().newEmptyStatement();
+            b.statements().add(idx, empty);
+            ASTProperties.attachJmlComment(empty, comment);
+        }
+    }
+
+    private Predicate<ASTNode> createTypePredicate(Class<?>[] clazzes) {
+        if (clazzes.length == 0) {
+            return it -> true;
+        }
+
+        if (clazzes.length == 1) {
+            return it -> it.getClass().isAssignableFrom(clazzes[0]);
+        }
+
+        return it -> {
+            for (var c : clazzes) {
+                if (it.getClass().isAssignableFrom(c)) {
+                    return true;
+                }
+            }
+            return false;
+        };
+    }
+
+    private void attachToNextNode(Comment comment, int... types) {
+        ASTNode node = nodeAfter(comment);
+        if (node == null) {
+            System.err.println("There is no parent so I am not able to get on following nodes.");
+        } else {
+            var predicate = createTypePredicate(types);
+            if (predicate.test(node)) {
+                ASTProperties.attachJmlComment(node, comment);
+                return;
+            }
+            var location = node.getLocationInParent();
+            if (location.isChildProperty()) {
+                var obj = node.getParent().getStructuralProperty(location);
+                System.out.println(obj);
+            }
+        }
+    }
+
+    /**
+     * Attaches this comment to its closest parents of the specified type.
+     *
+     * @param comment
+     */
+    private void attachToParent(Comment comment, int... types) {
+        Predicate<ASTNode> allowedNode = createTypePredicate(types);
+        attachToParent(comment, allowedNode);
+    }
+
+    @NotNull
+    private Predicate<ASTNode> createTypePredicate(int[] types) {
+        if (types.length == 0) {
+            return it -> true;
+        }
+        if (types.length == 1) {
+            return it -> it.getNodeType() == types[0];
+        }
+        Arrays.sort(types);
+        return astNode -> {
+            int t = astNode.getNodeType();
+            int idx = Arrays.binarySearch(types, t);
+            return idx > 0 && types[idx] == t;
+        };
+    }
+
+    private void attachToParent(Comment comment, Predicate<ASTNode> predicate) {
+        ASTNode current = nodeAfter(comment);
+        do {
+            if (current != null && predicate.test(current)) {
+                ASTProperties.attachJmlComment(current, comment);
+                return;
+            }
+            current = current != null ? current.getParent() : null;
+        } while (current != null);
+        System.out.println("Could not attach comment to any of its parent nodes.");
+    }
+
+    private @Nullable ASTNode narrowstContainer(Comment comment) {
+        Find f = new Find(comment.getStartPosition(), comment.getStartPosition() + comment.getLength());
+        comment.getAlternateRoot().accept(f);
+        return f.lastContainer;
+    }
+
+    private ASTNode nodeAfter(Comment comment) {
+        Find f = new Find(comment.getStartPosition(), comment.getStartPosition() + comment.getLength());
+        comment.getAlternateRoot().accept(f);
+        return f.found;
+    }
+}
+
+class Find extends ASTVisitor {
+    final int start, end;
+
+    int lastContainerSize;
+    ASTNode lastContainer;
+
+    ASTNode found;
+
+    Find(int start, int length) {
+        this.start = start;
+        this.end = length;
+    }
+
+
+    @Override
+    public boolean preVisit2(ASTNode node) {
+        var nEnd = node.getStartPosition() + node.getLength();
+        if (node.getStartPosition() <= start && nEnd >= end) {
+            lastContainer = node;
+            return true; //go deep
+        }
+
+        if (node.getStartPosition() >= start && found == null) {
+            found = node;
+        }
+
+        return false;
+    }
+}

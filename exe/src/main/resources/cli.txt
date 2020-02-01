@@ -1,0 +1,13 @@
+jml-extractor - A program and library to extract Java and Jml information from sources.
+
+Usage:
+  jml-extractor [-cp FILE...] [-v]
+  jml-extractor (-h|--help)
+  jml-extractor --version
+
+
+Options:
+  --no-vm-classpath   disable the vm boot-classpath
+  -cp FILE            specify files or jars to be add on the classpath
+  -v                  verbose output [default:false]
+  -D arg              directly set a compiler option

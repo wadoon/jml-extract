@@ -1,7 +1,6 @@
 lexer grammar JmlFinder;
 
 @header {
-package jml.annotation;
 }
 
 JML_S: '//@' ->pushMode(insjml),more;
