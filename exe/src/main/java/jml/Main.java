@@ -113,10 +113,10 @@ public class Main implements Callable<Integer> {
             if (stdin) {
                 final String input = new String(getInputStreamAsCharArray(System.in, 4 * 1024 * 1024, encoding));
                 if (statements) {
-                    final ASTNode node = p.compileStatements(input);
+                    final ASTNode node = p.compileStatements(input).getResult();
                     p.dumpJson(out, Stream.of(node));
                 } else if (expression) {
-                    final ASTNode node = p.compileExpression(input);
+                    final ASTNode node = p.compileExpression(input).getResult();
                     p.dumpJson(out, Stream.of(node));
                     return 0;
                 } else {
