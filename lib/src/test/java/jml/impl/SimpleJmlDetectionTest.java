@@ -1,16 +1,14 @@
 package jml.impl;
 
+import jml.JmlComment;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Alexander Weigl
@@ -21,7 +19,7 @@ class SimpleJmlDetectionTest {
 
     @TestFactory
     Stream<DynamicTest> testIsJmlCommentPositive() {
-        var positive = List.of("//@",
+        List<String> positive = listOf("//@",
                 "/*@ */",
                 "/*@ @*/",
                 "   //@    ",
@@ -34,14 +32,56 @@ class SimpleJmlDetectionTest {
                 "//-KeY+affd+afdsf@ fffdf");
         return DynamicTest.stream(positive.iterator(), it -> it, it -> {
             System.out.println(it);
-            assertTrue(sjd.isJmlComment(it));
+            assertTrue(sjd.isJmlComment(it),
+                    "ERROR: Input '" + it + "' is *not* classified as Jml comment.");
         });
+    }
+
+
+    @TestFactory
+    Stream<DynamicTest> testIsJmlCommentNegative() {
+        List<String> positive = listOf(
+                "// @",
+                "/* @ ",
+                "/* fdsaf",
+                "/** javadoc",
+                "/*-Key",
+                "//-KeY+affd+afdsf @ fffdf");
+
+        return DynamicTest.stream(positive.iterator(), it -> it, it -> {
+            System.out.println(it);
+            assertFalse(sjd.isJmlComment(it), "ERROR: Input '" + it + "' is classified as Jml comment.");
+        });
+    }
+
+    private <T> List<T> listOf(T... s) {
+        return Arrays.asList(s);
     }
 
     @Test
     void testGetAnnotations() {
         assertEquals(new TreeSet<String>(), sjd.getAnnotationKeys("//@"));
-        assertEquals(Set.of("+KeY"), sjd.getAnnotationKeys("//+KeY@"));
-        assertEquals(Set.of("+KeY", "-ESC"), sjd.getAnnotationKeys("//+KeY-ESC@"));
+        assertEquals(setOf("+KeY"), sjd.getAnnotationKeys("//+KeY@"));
+        assertEquals(setOf("+KeY", "-ESC"), sjd.getAnnotationKeys("//+KeY-ESC@"));
+    }
+
+    private <T> Set<T> setOf(T... s) {
+        return new HashSet<>(Arrays.asList(s));
+    }
+
+
+    @TestFactory
+    public Stream<DynamicTest> testGetType() {
+        List<DynamicTest> tests = new ArrayList<>();
+        tests.add(typeTest("//@ instance invariant true;", JmlComment.Type.CLASS_INVARIANT));
+        tests.add(typeTest("/*@ public normal_behaviour ensures true; */", JmlComment.Type.METHOD_CONTRACT));
+        tests.add(typeTest("//@ loop_invariant true;", JmlComment.Type.LOOP_INVARIANT));
+        tests.add(typeTest("/*@ pure helper */", JmlComment.Type.MODIFIER));
+        tests.add(typeTest("/*@ set a = 2; */", JmlComment.Type.GHOST_SET));
+        return tests.stream();
+    }
+
+    private DynamicTest typeTest(String input, JmlComment.Type expected) {
+        return DynamicTest.dynamicTest(input, () -> assertEquals(expected, sjd.getType(input)));
     }
 }

@@ -1,6 +1,7 @@
 package jml.impl;
 
 import jml.ASTProperties;
+import lombok.var;
 import org.eclipse.jdt.core.dom.*;
 
 import java.util.*;
@@ -10,26 +11,26 @@ import java.util.*;
  * @version 1 (1/31/20)
  */
 @SuppressWarnings("unchecked")
-public class AstToMapVisitor extends ASTVisitor {
+public class AstSerializer extends ASTVisitor {
     public Map<String, Object> root;
     private Stack<Map<String, Object>> stack = new Stack<>();
 
-    public AstToMapVisitor() {
+    public AstSerializer() {
         super(false);
     }
 
     @Override
     public void preVisit(ASTNode node) {
-        var map = new HashMap<String, Object>();
+        var map = new LinkedHashMap<String, Object>();
         map.put("class", node.getClass().getName());
         map.put("start", node.getStartPosition());
         map.put("length", node.getLength());
-        map.put("type", node.getNodeType());
+        map.put("nodeType", node.getNodeType());
         map.put("flags", node.getFlags());
         copyJml(map, node);
 
         var loc = node.getLocationInParent();
-        if (loc != null) {
+        if (loc != null && !stack.isEmpty()) {
             var cur = stack.peek();
             if (loc.isChildListProperty()) {
                 List<Object> seq;
@@ -55,9 +56,9 @@ public class AstToMapVisitor extends ASTVisitor {
                 var jc = new HashMap<String, Object>(6);
                 jc.put("startPosition", c.getStartPosition());
                 jc.put("length", c.getLength());
-                jc.put("type", ASTProperties.getJmlCommentType(c));
-                jc.put("annotations", ASTProperties.getAnnotations(c));
-                jc.put("content", ASTProperties.getContent(c));
+                jc.put("type", c.getType());
+                jc.put("annotations", c.getAnnotations());
+                jc.put("content", c.getContent());
                 jmlComments.add(jc);
             });
             target.put("jmlComments", jmlComments);
@@ -81,16 +82,20 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(ArrayAccess node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(ArrayCreation node) {
+        visitAsExpression(node);
+
         return super.visit(node);
     }
 
     @Override
     public boolean visit(ArrayInitializer node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -106,6 +111,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(Assignment node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -122,6 +128,7 @@ public class AstToMapVisitor extends ASTVisitor {
     @Override
     public boolean visit(BooleanLiteral node) {
         stack.peek().put("value", node.booleanValue());
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -133,6 +140,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(CastExpression node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -143,11 +151,13 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(CharacterLiteral node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(ClassInstanceCreation node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -158,6 +168,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(ConditionalExpression node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -173,6 +184,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(CreationReference node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -213,6 +225,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(ExpressionMethodReference node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -223,6 +236,8 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(FieldAccess node) {
+        visitAsExpression(node);
+
         return super.visit(node);
     }
 
@@ -261,6 +276,8 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(InstanceofExpression node) {
+        visitAsExpression(node);
+
         return super.visit(node);
     }
 
@@ -281,6 +298,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(LambdaExpression node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -291,6 +309,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(MarkerAnnotation node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -321,6 +340,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(MethodInvocation node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -346,17 +366,36 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(NormalAnnotation node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(NullLiteral node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(NumberLiteral node) {
+        put("value", node.getToken());
+        visitAsExpression(node);
         return super.visit(node);
+    }
+
+    private void visitAsExpression(Expression node) {
+        put("boxing", node.resolveBoxing());
+        put("unboxing", node.resolveUnboxing());
+        if (node.resolveConstantExpressionValue() != null) {
+            put("constantExprValue", node.resolveConstantExpressionValue());
+        }
+        if (node.resolveTypeBinding() != null) {
+            put("type", node.resolveTypeBinding().getBinaryName());
+        }
+    }
+
+    private void put(String value, Object obj) {
+        stack.peek().put(value, obj);
     }
 
     @Override
@@ -366,6 +405,8 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(PackageDeclaration node) {
+        put("name", node.getName());
+        put("javadoc", node.getJavadoc());
         return super.visit(node);
     }
 
@@ -376,18 +417,21 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(ParenthesizedExpression node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(PostfixExpression node) {
         stack.peek().put("operator", node.getOperator().toString());
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(PrefixExpression node) {
         stack.peek().put("operator", node.getOperator().toString());
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -398,12 +442,13 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(PrimitiveType node) {
-        //stack.peek().put("code", node.getPrimitiveTypeCode());
+        put("primitiveType", node.getPrimitiveTypeCode().toString());
         return super.visit(node);
     }
 
     @Override
     public boolean visit(QualifiedName node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -424,30 +469,39 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(SimpleName node) {
-        stack.peek().put("value", node.getIdentifier());
+        put("value", node.getIdentifier());
+        visitAsExpression(node);
         return true;
     }
 
     @Override
     public boolean visit(SimpleType node) {
-        stack.peek().put("value", node.getName().getFullyQualifiedName());
+        visitTypeBinding(node.resolveBinding());
         //stack.peek().put("value", node.getName().getFullyQualifiedName());
         stack.peek().put("isVar", node.isVar());
         return true;
     }
 
+    private void visitTypeBinding(ITypeBinding resolveBinding) {
+        if (resolveBinding == null) return;
+        put("fullyQualifiedName", resolveBinding.getQualifiedName());
+    }
+
     @Override
     public boolean visit(SingleMemberAnnotation node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(SingleVariableDeclaration node) {
+
         return super.visit(node);
     }
 
     @Override
     public boolean visit(StringLiteral node) {
+        visitAsExpression(node);
         stack.peek().put("escapedValue", node.getEscapedValue());
         return super.visit(node);
     }
@@ -459,16 +513,19 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(SuperFieldAccess node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(SuperMethodInvocation node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(SuperMethodReference node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -479,6 +536,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(SwitchExpression node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -499,6 +557,8 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(TextBlock node) {
+        visitAsExpression(node);
+
         return super.visit(node);
     }
 
@@ -509,6 +569,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(ThisExpression node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -535,11 +596,13 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(TypeLiteral node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
     @Override
     public boolean visit(TypeMethodReference node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 
@@ -560,6 +623,7 @@ public class AstToMapVisitor extends ASTVisitor {
 
     @Override
     public boolean visit(VariableDeclarationExpression node) {
+        visitAsExpression(node);
         return super.visit(node);
     }
 

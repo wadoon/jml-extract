@@ -1,6 +1,6 @@
 package jml.services;
 
-import jml.JmlCommentType;
+import jml.JmlComment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,11 +15,11 @@ import java.util.Set;
 public interface IJmlDetection {
     /**
      * Checks whether a given String is a JML comment.
-     *
+     * <p>
      * This check should
      * be simple and fast, and does not need to decide
      * whether the comment is valid.
-     *
+     * <p>
      * Refer to the manual: http://www.eecs.ucf.edu/~leavens/JML/jmlrefman/jmlrefman_4.html#SEC25
      *
      * @param comment a non-null string
@@ -41,9 +41,11 @@ public interface IJmlDetection {
 
     /**
      * Determines the type of a comment. Needed for a sensful attaching to {@link org.eclipse.jdt.core.dom.ASTNode}s.
+     * <p>
+     * Allow to return null if the given comment is not JML. Otherwise a non-null element is expected.
+     * If no type could be classified then {@link jml.JmlComment.Type#UNKNOWN} should be returned.
      *
-     * @param comment
-     * @return
+     * @param comment a non-null string
      */
-    @Nullable JmlCommentType getType(String comment);
+    @Nullable JmlComment.Type getType(@NotNull String comment);
 }

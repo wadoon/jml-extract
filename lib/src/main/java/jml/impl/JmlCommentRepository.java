@@ -2,7 +2,7 @@ package jml.impl;
 
 import jml.Lookup;
 import jml.services.IJmlCommentRepository;
-import jml.services.IJmlAstFactory;
+import jml.services.IJmlParser;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -15,7 +15,7 @@ import java.util.HashMap;
  */
 public class JmlCommentRepository implements IJmlCommentRepository {
     private final Lookup lookup;
-    private IJmlAstFactory jmlFactory;
+    private IJmlParser jmlFactory;
     private HashMap<ASTNode, Comment> assignComments = new HashMap<>();
     private HashMap<ASTNode, Object> parsedComments = new HashMap<>();
 

@@ -8,6 +8,10 @@ public class JMLTest {
     //@ invariant true
     //@ && false;
 
+    public void boxi() {
+        Integer i = 0;
+    }
+
     public void blocky() {
         /*@ behavior
             requires true; ensures true;
@@ -21,20 +25,5 @@ public class JMLTest {
         for (int i = 0; i < 0; i++) {
             //@ set a = 2;
         }
-    }
-
-    public void a() {
-        var a = "a";
-        recursive(a + "abc");
-
-
-    }
-
-    /*@ public normal_behaviour
-        ensures true;
-        requires true;
-     */
-    public <U> void recursive(U u) {
-        recursive(null);
     }
 }

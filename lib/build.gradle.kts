@@ -1,5 +1,6 @@
+import java.io.File
+
 plugins {
-    //id("org.jetbrains.kotlin.jvm") version "1.3.61"
     `java-library`
     antlr
 }
@@ -22,7 +23,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
 
-    compile("org.jetbrains:annotations:16.0.2")
+    compileOnly("org.jetbrains:annotations:16.0.2")
     /*
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
@@ -30,8 +31,39 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     */
 
-    compile("org.antlr:antlr4:4.7.2")
+    compile("org.antlr:antlr4-runtime:4.7.2")
     antlr("org.antlr:antlr4:4.7.2")
     compileOnly("org.projectlombok:lombok:1.18.10")
     annotationProcessor("org.projectlombok:lombok:1.18.10")
 }
+
+fun String.runCommand(
+        workingDir: File = File("."),
+        timeoutAmount: Long = 60,
+        timeoutUnit: TimeUnit = TimeUnit.SECONDS
+): String? = try {
+    ProcessBuilder(split("\\s".toRegex()))
+            .directory(workingDir)
+            .redirectOutput(ProcessBuilder.Redirect.PIPE)
+            .redirectErrorStream(true)
+            .start().apply { waitFor(timeoutAmount, timeoutUnit) }
+            .inputStream.bufferedReader().readText()?.trim()
+} catch (e: java.io.IOException) {
+    e.printStackTrace()
+    null
+}
+
+sourceSets["main"].resources.srcDir(File(buildDir, "generated-resources"))
+
+tasks.register("writeVersionFile") {
+    var outputFile: File = File(buildDir, "generated-resources/jml-extract.version")
+    outputs.file(outputFile)
+
+    doLast {
+        outputFile.parentFile.mkdirs()
+        var git = "git describe --tags --all --long".runCommand()
+        outputFile.writeText("jml-extract ${project.version} (${git})")
+    }
+}
+
+tasks["processResources"].dependsOn("writeVersionFile")

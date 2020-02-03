@@ -2,22 +2,21 @@ package jml;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import jml.impl.AstToMapVisitor;
+import jml.impl.AstSerializer;
 import jml.services.*;
-import lombok.Getter;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Modifier;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Alexander Weigl
@@ -25,42 +24,83 @@ import java.util.stream.Collectors;
  */
 public class JmlProject {
     private Lookup lookup = new Lookup(JmlCore.defaultServices);
-    private final ASTParser parser;
+    final ASTParser parser;
     private IProgressMonitor monitor;
-    @Nullable
-    private IJmlCommentRepository jmlRepo;
     private Map<String, CompilationUnit> compiledUnits = new HashMap<>();
-    private int uniqueCounter;
-    private boolean suppressJmlAttaching = false;
-    private boolean suppressJmlAnnotationProcessing = false;
 
-    private void registerComments(String p, CompilationUnit ast) {
+    /**
+     * A counter used for creating unique names.
+     */
+    private int uniqueCounter;
+
+    private String encoding = "utf-8";
+
+    private boolean jmlEnabled = true;
+    private boolean jmlAttachingEnabled = true;
+    private boolean jmlAnnotationProcessingEnabled = true;
+
+    /**
+     * Experimental
+     */
+    private boolean jmlAstCreationEnabled = false;
+    /**
+     * Experimental
+     */
+    private boolean jmlReAnnotationEnabled = false;
+    /**
+     * Experimental
+     */
+    private boolean jmlTypeInferenceEnabled = false;
+
+    private void annotateWithJml(String p, CompilationUnit ast) {
+        if (!jmlEnabled) {
+            return;
+        }
+
         compiledUnits.put(p, ast);
-        List<Comment> commentList = new ArrayList<>(ast.getCommentList().size());
+
+        List<JmlComment> commentList = new ArrayList<>(ast.getCommentList().size());
         IJmlDetection detection = lookup.get(IJmlDetection.class);
         try {
-            String content = Files.readString(Paths.get(p));
-            for (var it : ast.getCommentList()) {
+            String content = JmlCore.readString(p);
+            for (Object it : ast.getCommentList()) {
                 Comment c = (Comment) it;
                 String str = content.substring(c.getStartPosition(), c.getStartPosition() + c.getLength());
                 if (detection.isJmlComment(str)) {
-                    ASTProperties.setIsJmlComment(c, true);
-                    ASTProperties.setContent(c, str);
-                    final var type = detection.getType(str);
-                    ASTProperties.setJmlCommentType(c, type);
-                    ASTProperties.setAnnotations(c, detection.getAnnotationKeys(str));
-                    commentList.add(c);
+                    final JmlComment jc = ASTProperties.wrap(c);
+                    final JmlComment.Type type = detection.getType(str);
+                    jc.setEnabled(true);
+                    jc.setContent(str);
+                    jc.setType(type);
+                    jc.setAnnotations(new JmlAnnotation(detection.getAnnotationKeys(str)));
+                    commentList.add(jc);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (!suppressJmlAttaching) {
-            lookup.get(IJmlAttacher.class).attach(ast, commentList);
-        }
 
-        if (!suppressJmlAnnotationProcessing) {
-            lookup.lookupAll(IJmlAnnotationProcessor.class).forEach(it -> it.process(ast));
+        if (jmlAttachingEnabled) {
+            lookup.get(IJmlAttacher.class).attach(ast, commentList);
+
+            if (jmlAnnotationProcessingEnabled)
+                lookup.lookupAll(IJmlAnnotationProcessor.class).forEach(it -> it.process(ast));
+
+            if (jmlAstCreationEnabled) {
+                final IJmlParser factory = lookup.get(IJmlParser.class);
+                final Collection<IJmlTagger> tagger = lookup.lookupAll(IJmlTagger.class);
+
+                for (JmlComment comment : commentList) {
+                    factory.create(comment);
+                    if (jmlReAnnotationEnabled) {
+                        tagger.forEach(it -> it.modifyTags(comment));
+                    }
+
+                    if (jmlTypeInferenceEnabled) {
+                        lookup.get(IJmlTypeInference.class).inferTypes(this, comment);
+                    }
+                }
+            }
         }
     }
 
@@ -88,24 +128,52 @@ public class JmlProject {
         setEnvironment(new String[0], sourceEntries, "utf-8", true);
     }
 
-
-    public String getJmlSpecification(ASTNode node) {
-        return "";//TODO getJmlRepo().get(node);
+    public @Nullable List<JmlComment> getJmlSpecification(ASTNode node) {
+        return ASTProperties.getReferencedJmlComments(node, false);
     }
 
-    public void compileExpression(String expr) {
-
+    public PartialAst<Expression> compileExpression(String expr) {
+        String name = String.format("Expr%10d", ++uniqueCounter);
+        String source = String.format("public class %s { public void a() { %s; }",
+                name, expr);
+        parser.setUnitName(name);
+        parser.setSource(source.toCharArray());
+        CompilationUnit cu = (CompilationUnit) parser.createAST(monitor);
+        Block body = ((TypeDeclaration) cu.types().get(0)).getMethods()[0].getBody();
+        Expression result = ((ExpressionStatement) body.statements().get(0)).getExpression();
+        this.annotateWithJml(name, cu);
+        return new PartialAst<>(result, cu);
     }
 
-    public void compileBody(String body) {
-
+    public PartialAst<Block> compileStatements(String statements) {
+        String name = String.format("Statements%10d", ++uniqueCounter);
+        String source = String.format("public class %s { public void a() { %s }",
+                name, statements);
+        parser.setUnitName(name);
+        parser.setSource(source.toCharArray());
+        CompilationUnit cu = (CompilationUnit) parser.createAST(monitor);
+        Block body = ((TypeDeclaration) cu.types().get(0)).getMethods()[0].getBody();
+        annotateWithJml(name, cu);
+        return new PartialAst<>(body, cu);
     }
 
+    public CompilationUnit compileUnit(String fileName) throws IOException {
+        ASTCollector requestor = new ASTCollector();
+        parser.createASTs(new String[]{fileName}, new String[]{encoding}, new String[]{"" + (++uniqueCounter)},
+                requestor, monitor);
+        return requestor.getCompiledUnits().values().iterator().next();
+    }
 
-    public Collection<CompilationUnit> compileAllIn(String folder) throws IOException {
-        List<Path> col = Files.walk(Paths.get(folder))
-                .filter(it -> !Files.isDirectory(it))
-                .collect(Collectors.toList());
+    public CompilationUnit compileUnit(String fileName, char[] contents) {
+        parser.setSource(contents);
+        ASTNode node = parser.createAST(monitor);
+        CompilationUnit cu = (CompilationUnit) node.getRoot();
+        annotateWithJml(fileName, cu);
+        return cu;
+    }
+
+    public Collection<CompilationUnit> compileFiles(String... paths) {
+        List<Path> col = JmlCore.getFiles(paths);
         List<String> javaFiles =
                 col.stream().filter(it -> it.toString().endsWith(".java"))
                         .map(it -> it.toAbsolutePath().toString())
@@ -117,19 +185,42 @@ public class JmlProject {
                         .collect(Collectors.toList());
 
         String bindingKey = "" + (++uniqueCounter);
-        String[] bindingKeys = new String[javaFiles.size()];
-        String[] sourceFiles = new String[javaFiles.size()];
-        String[] encodings = new String[javaFiles.size()];
-        javaFiles.toArray(sourceFiles);
-        Arrays.fill(bindingKeys, bindingKey);
-        Arrays.fill(bindingKeys, "utf-8");
-        ASTCollector collector = new ASTCollector();
-        parser.createASTs(sourceFiles, encodings, bindingKeys, collector, monitor);
-        var cus = collector.getCompiledUnits().values();
-        collector.getCompiledUnits().forEach((this::registerComments));
+
+        @NotNull Collection<CompilationUnit> cusJava = Collections.emptyList();
+        @NotNull Collection<CompilationUnit> cusJml = Collections.emptyList();
+
+        if (javaFiles.size() > 0) {
+            setIgnoreMethodBodies(false);
+            cusJava = compile0(bindingKey, javaFiles, encoding);
+        }
+
+        if (jmlFiles.size() > 0) {
+            setIgnoreMethodBodies(true);
+            cusJml = compile0(bindingKey, jmlFiles, encoding);
+        }
+
+        setIgnoreMethodBodies(false);
+        ArrayList<CompilationUnit> cus = new ArrayList<>(cusJml.size() + cusJava.size());
+        cus.addAll(cusJava);
+        cus.addAll(cusJml);
         return cus;
     }
 
+    @NotNull
+    private Collection<CompilationUnit> compile0(String bindingKey, List<String> files, String encoding) {
+        String[] bindingKeys = new String[files.size()];
+        String[] sourceFiles = new String[files.size()];
+        String[] encodings = new String[files.size()];
+        files.toArray(sourceFiles);
+        Arrays.fill(bindingKeys, bindingKey);
+        Arrays.fill(encodings, "utf-8");
+
+        ASTCollector collector = new ASTCollector();
+        parser.createASTs(sourceFiles, encodings, bindingKeys, collector, monitor);
+        Collection<CompilationUnit> cus = collector.getCompiledUnits().values();
+        collector.getCompiledUnits().forEach((this::annotateWithJml));
+        return cus;
+    }
 
     public void setCompilerOptions(Map<String, String> options) {
         parser.setCompilerOptions(options);
@@ -143,13 +234,13 @@ public class JmlProject {
         parser.setIgnoreMethodBodies(enabled);
     }
 
-    public void dumpJson(Writer out) {
-        var seq = compiledUnits.entrySet().stream().map(entry -> {
-            var cu = entry.getValue();
-            var v = new AstToMapVisitor();
+    public void dumpJson(Writer out, Stream<? extends ASTNode> nodes) {
+        List<Object> seq = nodes.map(cu -> {
+            AstSerializer v = new AstSerializer();
             cu.accept(v);
             return v.root;
         }).collect(Collectors.toList());
+
         Gson gson = new GsonBuilder().setPrettyPrinting().disableInnerClassSerialization()
                 .serializeSpecialFloatingPointValues()
                 .excludeFieldsWithModifiers(Modifier.PRIVATE)
@@ -157,12 +248,8 @@ public class JmlProject {
         gson.toJson(seq, out);
     }
 
-    IJmlCommentRepository getJmlRepo() {
-        if (jmlRepo == null) {
-            jmlRepo = lookup.get(IJmlCommentRepositoryFactory.class).create(lookup);
-            lookup.register(jmlRepo, IJmlCommentRepository.class);
-        }
-        return jmlRepo;
+    public void dumpJson(Writer out) {
+        dumpJson(out, compiledUnits.values().stream());
     }
 
     public IProgressMonitor getMonitor() {
@@ -173,29 +260,55 @@ public class JmlProject {
         this.monitor = monitor;
     }
 
-    public boolean isSuppressJmlAttaching() {
-        return suppressJmlAttaching;
+    public boolean isJmlAttachingEnabled() {
+        return jmlAttachingEnabled;
     }
 
-    public void setSuppressJmlAttaching(boolean suppressJmlAttaching) {
-        this.suppressJmlAttaching = suppressJmlAttaching;
-    }
-}
-
-class ASTCollector extends FileASTRequestor {
-    @Getter
-    private final Map<String, CompilationUnit> compiledUnits = new HashMap<>();
-
-    @Getter
-    private final Map<String, List<IBinding>> bindings = new HashMap<>();
-
-    @Override
-    public void acceptAST(String sourceFilePath, CompilationUnit ast) {
-        compiledUnits.put(sourceFilePath, ast);
+    public void setJmlAttachingEnabled(boolean jmlAttachingEnabled) {
+        this.jmlAttachingEnabled = jmlAttachingEnabled;
     }
 
-    @Override
-    public void acceptBinding(String bindingKey, IBinding binding) {
-        System.out.format("%s : %s\n", bindingKey, binding);
+    public boolean isJmlEnabled() {
+        return jmlEnabled;
+    }
+
+    public void setJmlEnabled(boolean jmlEnabled) {
+        this.jmlEnabled = jmlEnabled;
+    }
+
+    public boolean isJmlAnnotationProcessingEnabled() {
+        return jmlAnnotationProcessingEnabled;
+    }
+
+    public void setJmlAnnotationProcessingEnabled(boolean jmlAnnotationProcessingEnabled) {
+        this.jmlAnnotationProcessingEnabled = jmlAnnotationProcessingEnabled;
+    }
+
+    public boolean isJmlAstCreationEnabled() {
+        return jmlAstCreationEnabled;
+    }
+
+    public void setJmlAstCreationEnabled(boolean jmlAstCreationEnabled) {
+        this.jmlAstCreationEnabled = jmlAstCreationEnabled;
+    }
+
+    public boolean isJmlReAnnotationEnabled() {
+        return jmlReAnnotationEnabled;
+    }
+
+    public void setJmlReAnnotationEnabled(boolean jmlReAnnotationEnabled) {
+        this.jmlReAnnotationEnabled = jmlReAnnotationEnabled;
+    }
+
+    public boolean isJmlTypeInferenceEnabled() {
+        return jmlTypeInferenceEnabled;
+    }
+
+    public void setJmlTypeInferenceEnabled(boolean jmlTypeInferenceEnabled) {
+        this.jmlTypeInferenceEnabled = jmlTypeInferenceEnabled;
+    }
+
+    public Lookup getLookup() {
+        return lookup;
     }
 }

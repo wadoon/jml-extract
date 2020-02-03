@@ -9,17 +9,20 @@ plugins {
 }
 
 dependencies {
-    implementation("org.docopt:docopt:0.6.0")
+    //   implementation("org.docopt:docopt:0.6.0")
+    implementation("info.picocli:picocli:4.1.4")
     implementation(project(":lib"))
 }
 configure<ApplicationPluginConvention> {
     mainClassName = "jml.Main"
 }
 
-configure<ShadowExtension> {
-    applicationDistribution.from("src/dist")
-}
-
 tasks.named<ShadowJar>("shadowJar") {
     minimize()
+    dependencies {
+        exclude(dependency(":ST4:"))
+        exclude(dependency(":antlr-runtime:"))
+        exclude(dependency(":icu4j:"))
+        exclude(dependency(":org.abego.treelayout.core:"))
+    }
 }

@@ -5,6 +5,19 @@ public class Test {
 
     public void call() {
         // Here the Javac can infer `obj : String`
-        var obj = this.<Object>id("I am a string.");
+        Object obj = this.<String>id("I am a string.");
+    }
+
+    public void a() {
+        String a = "a";
+        recursive(a + "abc");
+    }
+
+    /*@ public normal_behaviour
+        ensures true;
+        requires true;
+     */
+    public <U> void recursive(U u) {
+        recursive(null);
     }
 }

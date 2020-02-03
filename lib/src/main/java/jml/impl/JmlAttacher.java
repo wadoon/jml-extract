@@ -1,7 +1,9 @@
 package jml.impl;
 
 import jml.ASTProperties;
+import jml.JmlComment;
 import jml.services.IJmlAttacher;
+import lombok.var;
 import org.eclipse.jdt.core.dom.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,21 +20,20 @@ import static org.eclipse.jdt.core.dom.ASTNode.*;
  */
 public class JmlAttacher implements IJmlAttacher {
     @Override
-    public void attach(CompilationUnit ast, Collection<Comment> jmlComments) {
-        for (Comment c : jmlComments) {
+    public void attach(CompilationUnit ast, Collection<JmlComment> jmlComments) {
+        for (JmlComment c : jmlComments) {
             attachComment(ast, c);
         }
     }
 
-    private void attachComment(CompilationUnit ast, Comment c) {
-        var type = ASTProperties.getJmlCommentType(c);
-        if (type == null) {
+    private void attachComment(CompilationUnit ast, JmlComment c) {
+        if (c.getType() == null) {
             System.err.println("Given jml comment has to type. The IJmlDetection wrong? " +
-                    ASTProperties.getContent(c));
+                    c.getContent());
             return;
         }
 
-        switch (type) {
+        switch (c.getType()) {
             case UNKNOWN:
             case GHOST_FIELD:
             case MODEL:
@@ -59,7 +60,7 @@ public class JmlAttacher implements IJmlAttacher {
 
     }
 
-    private void insertIntoBlock(Comment comment, Class<?>... clazzes) {
+    private void insertIntoBlock(JmlComment comment, Class<?>... clazzes) {
         ASTNode node = narrowstContainer(comment);
         if (node == null || !(node instanceof Block)) {
             System.err.println("There is no parent so I am not able to get on following nodes.");
@@ -74,7 +75,7 @@ public class JmlAttacher implements IJmlAttacher {
                     break;
                 }
             }
-            final var empty = comment.getAST().newEmptyStatement();
+            final EmptyStatement empty = comment.wrapped().getAST().newEmptyStatement();
             b.statements().add(idx, empty);
             ASTProperties.attachJmlComment(empty, comment);
         }
@@ -99,7 +100,7 @@ public class JmlAttacher implements IJmlAttacher {
         };
     }
 
-    private void attachToNextNode(Comment comment, int... types) {
+    private void attachToNextNode(JmlComment comment, int... types) {
         ASTNode node = nodeAfter(comment);
         if (node == null) {
             System.err.println("There is no parent so I am not able to get on following nodes.");
@@ -122,7 +123,7 @@ public class JmlAttacher implements IJmlAttacher {
      *
      * @param comment
      */
-    private void attachToParent(Comment comment, int... types) {
+    private void attachToParent(JmlComment comment, int... types) {
         Predicate<ASTNode> allowedNode = createTypePredicate(types);
         attachToParent(comment, allowedNode);
     }
@@ -143,7 +144,7 @@ public class JmlAttacher implements IJmlAttacher {
         };
     }
 
-    private void attachToParent(Comment comment, Predicate<ASTNode> predicate) {
+    private void attachToParent(JmlComment comment, Predicate<ASTNode> predicate) {
         ASTNode current = nodeAfter(comment);
         do {
             if (current != null && predicate.test(current)) {
@@ -152,18 +153,18 @@ public class JmlAttacher implements IJmlAttacher {
             }
             current = current != null ? current.getParent() : null;
         } while (current != null);
-        System.out.println("Could not attach comment to any of its parent nodes.");
+        System.err.println("Could not attach comment to any of its parent nodes.");
     }
 
-    private @Nullable ASTNode narrowstContainer(Comment comment) {
+    private @Nullable ASTNode narrowstContainer(JmlComment comment) {
         Find f = new Find(comment.getStartPosition(), comment.getStartPosition() + comment.getLength());
-        comment.getAlternateRoot().accept(f);
+        comment.wrapped().getAlternateRoot().accept(f);
         return f.lastContainer;
     }
 
-    private ASTNode nodeAfter(Comment comment) {
+    private ASTNode nodeAfter(JmlComment comment) {
         Find f = new Find(comment.getStartPosition(), comment.getStartPosition() + comment.getLength());
-        comment.getAlternateRoot().accept(f);
+        comment.wrapped().getAlternateRoot().accept(f);
         return f.found;
     }
 }
