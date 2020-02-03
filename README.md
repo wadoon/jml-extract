@@ -16,8 +16,10 @@ By using the Eclipse Java compiler (ECJ), we support **Java 13**.
 We plan to support following *levels*:
 
 * [x] **Level 0:** JML specification are attached as `Strings` to the AST nodes. 
-      This gives the highest flexibility for 
+      This gives the highest flexibility as JML keeps untouched.
+    * [ ] **Level 0+:** Support for adding annotation processors for translation of annotation to JML specification.      
 * [ ] **Level 1:** Providing a parse tree of the JML comments. 
+    * *Open question: How should we deal with Java blocks inside JML, e.g. Java in Lambda functions.*
 * [ ] **Level 2:** Type-inference of the JML parse trees 
 
 ## Getting Started with the API
@@ -89,14 +91,18 @@ Usage: <main class> [-hv] [--expr] [--in] [--no-bodies]
    3. Annotation Processing for translating type annotation into JML specifications 
         (`IJmlAnnotationProcessor`).
       * **LEVEL 0** ends here.
-   4. **TODO* Parse the JML comments into `ParserRuleContext` (antlr4's parse tree) (`IJmlAstFactory`).
+   4. **TODO** Parse the JML comments into `ParserRuleContext` (antlr4's parse tree) (`IJmlAstFactory`).
       * See the grammar definitions `KeYJmlParser.g4`.
    5. Re-annotating the JML comments.
       * JML comments have annotation, a list of identifiers with "+" or "-" as prefix. 
         The annotations should help tools to filter out comments which are not meant for them.
       * In this step, hooks can update the annotation based upon the ast.
       * **LEVEL 1** ends here.
-   6.       
+   6.  **TODO** We support a type inference for JML expression. 
+      * The idea is to rewrite JML into Java and using the Java compiler.
+      * We need to translate certain aspect also in to this synthetic Java, e.g. 
+      * Requires rewriting of JML identifiers, and also support for 
+        JML constants, sorts, functions, predicates.
 
 ## State of development (TODOs)
 
