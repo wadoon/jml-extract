@@ -73,10 +73,10 @@ class SimpleJmlDetectionTest {
     @TestFactory
     public Stream<DynamicTest> testGetType() {
         List<DynamicTest> tests = new ArrayList<>();
+        tests.add(typeTest("/*@ pure helper */", JmlComment.Type.MODIFIER));
         tests.add(typeTest("//@ instance invariant true;", JmlComment.Type.CLASS_INVARIANT));
         tests.add(typeTest("/*@ public normal_behaviour ensures true; */", JmlComment.Type.METHOD_CONTRACT));
         tests.add(typeTest("//@ loop_invariant true;", JmlComment.Type.LOOP_INVARIANT));
-        tests.add(typeTest("/*@ pure helper */", JmlComment.Type.MODIFIER));
         tests.add(typeTest("/*@ set a = 2; */", JmlComment.Type.GHOST_SET));
         return tests.stream();
     }

@@ -1,11 +1,7 @@
 package jml;
 
-import jml.impl.JmlAttacher;
-import jml.impl.JmlCommentRepository;
-import jml.impl.SimpleJmlDetection;
-import jml.services.IJmlAttacher;
-import jml.services.IJmlCommentRepositoryFactory;
-import jml.services.IJmlDetection;
+import jml.impl.*;
+import jml.services.*;
 import lombok.SneakyThrows;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -35,7 +31,10 @@ public class JmlCore {
     static {
         defaultServices.register(new SimpleJmlDetection(), IJmlDetection.class);
         defaultServices.register(new JmlAttacher(), IJmlAttacher.class);
-        defaultServices.register(JmlCommentRepository::new, IJmlCommentRepositoryFactory.class);
+        defaultServices.register(new JmlParser(), IJmlParser.class);
+        defaultServices.register(new JmlTagger(), IJmlTagger.class);
+        defaultServices.register(new JmlTypeInference(), IJmlTypeInference.class);
+
     }
 
     public static void init() {

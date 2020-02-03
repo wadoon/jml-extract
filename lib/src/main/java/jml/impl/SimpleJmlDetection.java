@@ -60,6 +60,8 @@ public class SimpleJmlDetection implements IJmlDetection {
                 case KeyJmlLexer.WS_CONTRACT:
                 case KeyJmlLexer.WS_CONTRACT_IGNORE:
                 case KeyJmlLexer.JML_START:
+                case KeyJmlLexer.JML_END:
+                case KeyJmlLexer.EOF:
                     break;
 
                 //CONTRACT
