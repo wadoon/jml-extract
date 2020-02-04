@@ -118,7 +118,7 @@ public class Test {
         JmlProject p = JmlCore.createProject();
         p.setEnvironment("../examples");
         PartialAst<Block> e = p.compileStatements("List<Integer> seq = null;");
-        final CompilationUnit root = (CompilationUnit) e.getSyntheticCompilationUnit();
+        final CompilationUnit root = e.getContext();
         for (IProblem problem : root.getProblems()) {
             System.out.println(problem);
         }
