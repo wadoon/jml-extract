@@ -25,7 +25,6 @@ import java.util.stream.Stream;
  * @version 1 (1/30/20)
  */
 public class JmlCore {
-    static boolean initialised = false;
     static Lookup defaultServices = new Lookup();
 
     static {
@@ -36,13 +35,6 @@ public class JmlCore {
         defaultServices.register(new JmlTypeInference(), IJmlTypeInference.class);
 
     }
-
-    public static void init() {
-        if (!initialised) {
-            initialised = true;
-        }
-    }
-
     public static JmlProject createProject(String version) {
         return new JmlProject(createParser(version));
     }

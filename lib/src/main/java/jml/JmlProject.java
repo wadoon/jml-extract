@@ -53,6 +53,15 @@ public class JmlProject {
     private boolean jmlTypeInferenceEnabled = false;
 
     private void annotateWithJml(String p, CompilationUnit ast) {
+        try {
+            String sourceCode = JmlCore.readString(p);
+            annotateWithJml(p, ast, sourceCode);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void annotateWithJml(String p, CompilationUnit ast, String sourceCode) {
         if (!jmlEnabled) {
             return;
         }
@@ -61,23 +70,18 @@ public class JmlProject {
 
         List<JmlComment> commentList = new ArrayList<>(ast.getCommentList().size());
         IJmlDetection detection = lookup.get(IJmlDetection.class);
-        try {
-            String content = JmlCore.readString(p);
-            for (Object it : ast.getCommentList()) {
-                Comment c = (Comment) it;
-                String str = content.substring(c.getStartPosition(), c.getStartPosition() + c.getLength());
-                if (detection.isJmlComment(str)) {
-                    final JmlComment jc = ASTProperties.wrap(c);
-                    final JmlComment.Type type = detection.getType(str);
-                    jc.setEnabled(true);
-                    jc.setContent(str);
-                    jc.setType(type);
-                    jc.setAnnotations(new JmlAnnotation(detection.getAnnotationKeys(str)));
-                    commentList.add(jc);
-                }
+        for (Object it : ast.getCommentList()) {
+            Comment c = (Comment) it;
+            String str = sourceCode.substring(c.getStartPosition(), c.getStartPosition() + c.getLength());
+            if (detection.isJmlComment(str)) {
+                final JmlComment jc = ASTProperties.wrap(c);
+                final JmlComment.Type type = detection.getType(str);
+                jc.setEnabled(true);
+                jc.setContent(str);
+                jc.setType(type);
+                jc.setAnnotations(new JmlAnnotation(detection.getAnnotationKeys(str)));
+                commentList.add(jc);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         if (jmlAttachingEnabled) {
@@ -133,27 +137,32 @@ public class JmlProject {
     }
 
     public PartialAst<Expression> compileExpression(String expr) {
-        String name = String.format("Expr%10d", ++uniqueCounter);
-        String source = String.format("public class %s { public void a() { %s; }",
+        String name = String.format("Expr%010d", ++uniqueCounter);
+        String source = String.format("public class %s { public Object a() { return %s; } }",
                 name, expr);
         parser.setUnitName(name);
         parser.setSource(source.toCharArray());
         CompilationUnit cu = (CompilationUnit) parser.createAST(monitor);
         Block body = ((TypeDeclaration) cu.types().get(0)).getMethods()[0].getBody();
-        Expression result = ((ExpressionStatement) body.statements().get(0)).getExpression();
-        this.annotateWithJml(name, cu);
-        return new PartialAst<>(result, cu);
+        try {
+            ReturnStatement s = (ReturnStatement) body.statements().get(0);
+            Expression result = s.getExpression();
+            this.annotateWithJml(name, cu, source);
+            return new PartialAst<>(result, cu);
+        } catch (IndexOutOfBoundsException e) {
+            return new PartialAst<>(null, cu);
+        }
     }
 
     public PartialAst<Block> compileStatements(String statements) {
-        String name = String.format("Statements%10d", ++uniqueCounter);
-        String source = String.format("public class %s { public void a() { %s }",
+        String name = String.format("Statements%010d", ++uniqueCounter);
+        String source = String.format("public class %s { public void a() { %s } }",
                 name, statements);
         parser.setUnitName(name);
         parser.setSource(source.toCharArray());
         CompilationUnit cu = (CompilationUnit) parser.createAST(monitor);
         Block body = ((TypeDeclaration) cu.types().get(0)).getMethods()[0].getBody();
-        annotateWithJml(name, cu);
+        annotateWithJml(name, cu, source);
         return new PartialAst<>(body, cu);
     }
 
@@ -310,5 +319,9 @@ public class JmlProject {
 
     public Lookup getLookup() {
         return lookup;
+    }
+
+    public void setEmptyEnvironment() {
+        setEnvironment(new String[0], new String[0], "utf-8", true);
     }
 }

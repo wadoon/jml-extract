@@ -373,7 +373,7 @@ localVariableDeclaration
 
 statement
     : blockLabel=block
-    | ASSERT expression (COLON expression)? SEMI
+    | ASSERT_ expression (COLON expression)? SEMI
     | IF parExpression statement (ELSE statement)?
     | FOR LPAREN forControl RPAREN statement
     | WHILE parExpression statement
@@ -615,8 +615,9 @@ arguments
  ********************************************************/
 
 /**
-
 */
+jmlAny:   jmlContract | jmlClassElem | jmlModifier |  jmlBlockCntr | jmlAnnotation;
+
 jmlContract     : JML_START methodContracts mod* JML_END
                 ;
 
@@ -804,6 +805,7 @@ within a sequence of statements.
 
 */
 annot       : setStm SEMI_TOPLEVEL
+            | assume
             | assert_ SEMI_TOPLEVEL
             | fieldDecl SEMI_TOPLEVEL
             | UNREACHABLE
@@ -908,6 +910,9 @@ returns_        : RETURNS expr
                 ;
 
 setStm          : SET location=expr ASSIGN value=expr
+                ;
+
+assume          : ASSUME expr
                 ;
 
 assert_         : ASSERT_ expr

@@ -85,6 +85,7 @@ public class Test {
     public void test() throws IOException {
         JmlProject p = JmlCore.createProject();
         p.setEnvironment("../example");
+        p.setJmlAstCreationEnabled(true);
         Collection<CompilationUnit> cus = p.compileFiles("../example");
         for (CompilationUnit root : cus)
             for (IProblem problem : root.getProblems())
@@ -101,22 +102,27 @@ public class Test {
 
     @org.junit.jupiter.api.Test
     public void testExpr() throws IOException {
-        JmlCore.init();
         JmlProject p = JmlCore.createProject();
-        PartialAst<Expression> e = p.compileExpression("2+'a'/true");
+        p.setEmptyEnvironment();
+        PartialAst<Expression> e = p.compileExpression("2+'a'/2");
         System.out.println(e);
         System.out.println(e.getClass());
         try (Writer out = new PrintWriter(System.out)) {
-            p.dumpJson(out, Stream.of(e.getResult()));
+            if (e.getResult() != null) {
+                p.dumpJson(out, Stream.of(e.getResult()));
+            }else{
+                for (Object a : e.getContext().getProblems()) {
+                    System.err.println(a);
+                }
+            }
         }
     }
 
 
     @org.junit.jupiter.api.Test
     public void testStmt() throws IOException {
-        JmlCore.init();
         JmlProject p = JmlCore.createProject();
-        p.setEnvironment("../examples");
+        p.setEmptyEnvironment();
         PartialAst<Block> e = p.compileStatements("List<Integer> seq = null;");
         final CompilationUnit root = e.getContext();
         for (IProblem problem : root.getProblems()) {

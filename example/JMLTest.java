@@ -5,8 +5,7 @@ package test;
  * @version 1 (1/24/20)
  */
 public class JMLTest {
-    //@ invariant true
-    //@ && false;
+    //@ invariant true && false;
 
     public void boxi() {
         Integer i = 0;

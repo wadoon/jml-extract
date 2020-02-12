@@ -75,7 +75,7 @@ public class SimpleJmlDetection implements IJmlDetection {
                 case KeyJmlLexer.RETURN_BEHAVIOR:
                     return JmlComment.Type.BLOCK_CONTRACT;
 
-                case KeyJmlLexer.ASSERT:
+                case KeyJmlLexer.ASSERT_:
                     return JmlComment.Type.ASSERT;
 
                 case KeyJmlLexer.MODEL:

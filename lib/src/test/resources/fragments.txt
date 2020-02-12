@@ -1,0 +1,101 @@
+<<<<<<<
+var a = 2;
+=======
+[
+  {
+    "class": "org.eclipse.jdt.core.dom.Block",
+    "start": 52,
+    "length": 27,
+    "nodeType": 8,
+    "flags": 2,
+    "statements": [
+      {
+        "class": "org.eclipse.jdt.core.dom.VariableDeclarationStatement",
+        "start": 54,
+        "length": 22,
+        "nodeType": 60,
+        "flags": 2,
+        "type": {
+          "class": "org.eclipse.jdt.core.dom.SimpleType",
+          "start": 54,
+          "length": 3,
+          "nodeType": 43,
+          "flags": 2,
+          "isVar": false,
+          "name": {
+            "class": "org.eclipse.jdt.core.dom.SimpleName",
+            "start": 54,
+            "length": 3,
+            "nodeType": 42,
+            "flags": 2,
+            "value": "var",
+            "boxing": false,
+            "unboxing": false
+          }
+        },
+        "fragments": [
+          {
+            "class": "org.eclipse.jdt.core.dom.VariableDeclarationFragment",
+            "start": 58,
+            "length": 17,
+            "nodeType": 59,
+            "flags": 2,
+            "name": {
+              "class": "org.eclipse.jdt.core.dom.SimpleName",
+              "start": 58,
+              "length": 3,
+              "nodeType": 42,
+              "flags": 2,
+              "value": "abc",
+              "boxing": false,
+              "unboxing": false
+            },
+            "initializer": {
+              "class": "org.eclipse.jdt.core.dom.CreationReference",
+              "start": 64,
+              "length": 11,
+              "nodeType": 89,
+              "flags": 2,
+              "boxing": false,
+              "unboxing": false,
+              "type": {
+                "class": "org.eclipse.jdt.core.dom.SimpleType",
+                "start": 64,
+                "length": 6,
+                "nodeType": 43,
+                "flags": 2,
+                "fullyQualifiedName": "java.lang.Object",
+                "isVar": false,
+                "name": {
+                  "class": "org.eclipse.jdt.core.dom.SimpleName",
+                  "start": 64,
+                  "length": 6,
+                  "nodeType": 42,
+                  "flags": 2,
+                  "value": "Object",
+                  "boxing": false,
+                  "unboxing": false,
+                  "type": "java.lang.Object"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
+>>>>>>>
+
+<<<<<<<
+String[][][] a = new String[2][10][1000];
+=======
+
+>>>>>>>
+
+
+<<<<<<<
+var abc = Object::new;
+=======
+
+>>>>>>>

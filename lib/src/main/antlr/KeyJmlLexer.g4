@@ -66,7 +66,8 @@ import lombok.Setter;
 
 // Keywords
 ABSTRACT:           'abstract';
-ASSERT:             'assert';
+ASSERT_:             'assert';
+ASSUME:             'assume';
 BOOLEAN:            'boolean';
 BREAK:              'break';
 BYTE:               'byte';
@@ -296,7 +297,7 @@ JC_STATIC:              'static' -> type(STATIC);
 ALSO:                   'also';
 
 // Keywords that introduce expression
-JC_ASSERT:              'assert'        -> pushMode(jmlExpr), type(ASSERT);
+JC_ASSERT:              'assert'        -> pushMode(jmlExpr), type(ASSERT_);
 MODEL:                  'model'         -> pushMode(jmlExpr); //TODO this is not always the case
 INVARIANT:              'invariant'     -> pushMode(jmlExpr);
 CONSTRAINT:             'constraint'    -> pushMode(jmlExpr);
