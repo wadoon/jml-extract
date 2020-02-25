@@ -54,6 +54,7 @@ class SimpleJmlDetectionTest {
         });
     }
 
+    @SuppressWarnings("unchecked")
     private <T> List<T> listOf(T... s) {
         return Arrays.asList(s);
     }
@@ -65,6 +66,7 @@ class SimpleJmlDetectionTest {
         assertEquals(setOf("+KeY", "-ESC"), sjd.getAnnotationKeys("//+KeY-ESC@"));
     }
 
+    @SuppressWarnings("unchecked")
     private <T> Set<T> setOf(T... s) {
         return new HashSet<>(Arrays.asList(s));
     }

@@ -13,7 +13,8 @@ public class JMLTest {
 
     public void blocky() {
         /*@ behavior
-            requires true; ensures true;
+            requires true;
+            ensures true;
          */
         {
             int i = 0;

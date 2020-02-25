@@ -18,6 +18,9 @@ public class JmlComment {
     private static final String JML_ENABLED = "JML_ENABLED";
     private static final String JML_EFFECTS_ON = "JML_EFFECTS_ON";
     private static final String JML_AST = "JML_AST";
+    private static final String JML_AST_PARSING_ERRORS = "JML_AST_PARSING_ERRORS";
+    private static final String JML_AST_TYPE_ERRORS = "JML_AST_TYPE_ERRORS";
+
 
     private static final String JML_PARSER_ERRORS = "JML_PARSER_ERRORS";
 
@@ -64,11 +67,11 @@ public class JmlComment {
     }
 
     public int getStartPosition() {
-        return 0;
+        return wrapped().getStartPosition();
     }
 
     public int getLength() {
-        return 0;
+        return wrapped().getLength();
     }
 
     public Comment wrapped() {
@@ -87,6 +90,14 @@ public class JmlComment {
         GHOST_SET,
         ASSUME,
         ASSERT;
+    }
+
+    public List<JmlProblem> getTypeErrors() {
+        return (List<JmlProblem>) c.getProperty(JML_AST_TYPE_ERRORS);
+    }
+
+    public void setTypeErrors(List<JmlProblem> seq) {
+        c.setProperty(JML_AST_TYPE_ERRORS, seq);
     }
 
     public ParserRuleContext getContext() {

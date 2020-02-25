@@ -46,7 +46,7 @@ public class JmlAttacher implements IJmlAttacher {
             case BLOCK_CONTRACT:
                 attachToNextNode(c, BLOCK);
             case METHOD_CONTRACT:
-                attachToNextNode(c, METHOD_DECLARATION);
+                attachToNextMethod(c);
                 break;
             case MODIFIER:
                 attachToNextNode(c, FIELD_DECLARATION, METHOD_DECLARATION);
@@ -100,6 +100,39 @@ public class JmlAttacher implements IJmlAttacher {
         };
     }
 
+    private TypeDeclaration getTypeDeclaration(JmlComment comment) {
+        final Comment c = comment.wrapped();
+        CompilationUnit cu = (CompilationUnit) c.getAlternateRoot();
+        for (Object o : cu.types()) {
+            TypeDeclaration type = (TypeDeclaration) o;
+            if (type.getStartPosition() <= c.getStartPosition() &&
+                    type.getLength() >= c.getLength()) {
+                return type;
+            }
+        }
+        return null;
+    }
+
+    private void attachToNextMethod(JmlComment comment) {
+        final Comment c = comment.wrapped();
+        TypeDeclaration td = getTypeDeclaration(comment);
+        if (td != null) {
+            MethodDeclaration last = null;
+            for (MethodDeclaration method : td.getMethods()) {
+                if (method.getStartPosition() <= c.getLength() + c.getStartPosition()) {
+                    last = method;
+                    continue;
+                }
+                break;
+            }
+            if (last != null) {
+                ASTProperties.attachJmlComment(last, comment);
+            }
+        } else {
+            System.err.println("Error: Could not attach comment to method.");
+        }
+    }
+
     private void attachToNextNode(JmlComment comment, int... types) {
         ASTNode node = nodeAfter(comment);
         if (node == null) {
@@ -111,9 +144,9 @@ public class JmlAttacher implements IJmlAttacher {
                 return;
             }
             var location = node.getLocationInParent();
-            if (location.isChildProperty()) {
+            if (location.isChildListProperty()) {
                 var obj = node.getParent().getStructuralProperty(location);
-                System.out.println(obj);
+                System.err.println("Could not attach comment to any of its parent nodes.");
             }
         }
     }

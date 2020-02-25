@@ -279,12 +279,18 @@ qualifiedName
 
 literal
     : integerLiteral
-    | FLOAT_LITERAL
-    | CHAR_LITERAL
-    | STRING_LITERAL
-    | BOOL_LITERAL
-    | NULL_LITERAL
+    | floatLiteral
+    | charLiteral
+    | stringLiteral
+    | boolLiteral
+    | nullLiteral
     ;
+
+floatLiteral:  FLOAT_LITERAL;
+charLiteral:   CHAR_LITERAL;
+stringLiteral: STRING_LITERAL;
+boolLiteral:   BOOL_LITERAL;
+nullLiteral:   NULL_LITERAL;
 
 integerLiteral
     : DECIMAL_LITERAL
@@ -294,7 +300,6 @@ integerLiteral
     ;
 
 // ANNOTATIONS
-
 annotation
     : AT qualifiedName (LPAREN ( elementValuePairs | elementValue )? RPAREN)?
     ;
@@ -509,10 +514,10 @@ lambdaBody
 
 primary
     : LPAREN expression RPAREN
-    | THIS
-    | SUPER
+    | this_
+    | super_
     | literal
-    | IDENTIFIER
+    | identifier
     | typeTypeOrVoid DOT CLASS
     | nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)
     | methodReference // Java 8
@@ -618,24 +623,24 @@ arguments
 */
 jmlAny:   jmlContract | jmlClassElem | jmlModifier |  jmlBlockCntr | jmlAnnotation;
 
-jmlContract     : JML_START methodContracts mod* JML_END
+jmlContract     : JML_START methodContracts mod* (JML_END|EOF)
                 ;
 
 /**
 
 */
-jmlClassElem    : JML_START classElem JML_END
+jmlClassElem    : JML_START classElem (JML_END|EOF)
                 ;
 
 /**
 
 */
-jmlModifier     : JML_START  mod (COMMA? mod)* JML_END
+jmlModifier     : JML_START  mod (COMMA? mod)* (JML_END|EOF)
                 ;
 /**
 
 */
-jmlBlockCntr    : JML_START blockContracts JML_END
+jmlBlockCntr    : JML_START blockContracts (JML_END|EOF)
                 ;
 
 /**
@@ -815,7 +820,7 @@ annot       : setStm SEMI_TOPLEVEL
 /**
 Entry point for annotations.
 */
-jmlAnnotation   : JML_START annot+ JML_END
+jmlAnnotation   : JML_START annot+ (JML_END|EOF)
                 ;
 /**
 
@@ -982,7 +987,7 @@ expr  :
     | expr op=AND expr                                                                                   #exprLogicalAnd
     | expr op=OR expr                                                                                     #exprLogicalOr
 
-	| expr LBRACK expr DOTDOT expr RBRACK                                                               #exprSubSequence
+	  | expr LBRACK expr DOTDOT expr RBRACK                                                               #exprSubSequence
     | expr QUESTION expr COLON expr                                                                         #exprTernary
     // end of java hierarchy
 
@@ -991,19 +996,24 @@ expr  :
     | expr op=EQUIVALENCE expr                                                                          #exprEquivalence
     | expr op=ANTIVALENCE expr                                                                          #exprAntivalence
     | expr LPAREN exprs? RPAREN                                                                            #exprFunction
-    | id LPAREN exprs? RPAREN                                                                              #exprFunction
-    | THIS #exprThis
-    | SUPER #exprSuper
+    | this_                                                                                                    #exprThis
+    | super_                                                                                                  #exprSuper
     ;
+
+identifier: IDENTIFIER;
+this_: THIS;
+super_: SUPER;
+classRef: typeTypeOrVoid DOT CLASS;
+constructorCall: nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments);
 
 jmlPrimary
     : LPAREN expr RPAREN
-    | THIS
-    | SUPER
+    | this_
+    | super_
     | literal
-    | IDENTIFIER
-    | typeTypeOrVoid DOT CLASS
-    | nonWildcardTypeArguments (explicitGenericInvocationSuffix | THIS arguments)
+    | identifier
+    | classRef
+    | constructorCall
     | methodReference // Java 8
     | jmlTypeType
     ;
@@ -1045,7 +1055,7 @@ Identifier in JML are
 We try to minimize the specific usage of specific DL keywords,
 and catch false usage later.
 */
-id:     IDENTIFIER | THIS | SUPER;
+id:     identifier | this_ | super_;
 
 /**
 Types are just normal identifiers, e.g.

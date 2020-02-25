@@ -53,12 +53,17 @@ public class AstSerializer extends ASTVisitor {
         if (seq != null) {
             var jmlComments = new ArrayList<>(seq.size());
             seq.forEach(c -> {
+                final JmlSerializer jmlSerializer = new JmlSerializer(c.getStartPosition());
                 var jc = new HashMap<String, Object>(6);
                 jc.put("startPosition", c.getStartPosition());
                 jc.put("length", c.getLength());
                 jc.put("type", c.getType());
                 jc.put("annotations", c.getAnnotations());
                 jc.put("content", c.getContent());
+                if (c.getContext() != null) {
+                    jc.put("ast", c.getContext().accept(jmlSerializer));
+                }
+                jc.put("parsing_errors", c.getParserErrors());
                 jmlComments.add(jc);
             });
             target.put("jmlComments", jmlComments);
@@ -346,6 +351,8 @@ public class AstSerializer extends ASTVisitor {
 
     @Override
     public boolean visit(Modifier node) {
+        put("value", node.getKeyword().toFlagValue());
+        put("svalue", node.getKeyword().toString());
         return super.visit(node);
     }
 
@@ -495,7 +502,6 @@ public class AstSerializer extends ASTVisitor {
 
     @Override
     public boolean visit(SingleVariableDeclaration node) {
-
         return super.visit(node);
     }
 

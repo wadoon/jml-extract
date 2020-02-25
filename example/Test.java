@@ -14,8 +14,9 @@ public class Test {
     }
 
     /*@ public normal_behaviour
-        ensures true;
-        requires true;
+        ensures f(u) && true && new Boolean(true) && this.a();
+        requires false;
+        assignable \nothing;
      */
     public <U> void recursive(U u) {
         recursive(null);
