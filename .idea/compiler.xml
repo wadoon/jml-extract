@@ -11,7 +11,7 @@
         <module name="jml-extractor.lib.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.8">
       <module name="jml-extractor.main" target="13" />
       <module name="jml-extractor.test" target="13" />
     </bytecodeTargetLevel>

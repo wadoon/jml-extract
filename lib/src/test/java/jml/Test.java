@@ -1,5 +1,6 @@
 package jml;
 
+import jml.impl.SimpleJmlCommentPrinter;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class Test {
@@ -95,7 +97,13 @@ public class Test {
                         new String(problem.getOriginatingFileName()),
                         problem.getSourceLineNumber()
                 );
-        try (FileWriter out = new FileWriter("/tmp/blubber.json")) {
+        for (CompilationUnit unit : cus) {
+            List<JmlComment> comments = ASTProperties.getJmlComments(unit);
+            PrettyPrinter pp = new PrettyPrinter(comments, new SimpleJmlCommentPrinter());
+            unit.accept(pp);
+            System.out.println(pp.getResult());
+        }
+        try (FileWriter out = new FileWriter("blubber.json")) {
             p.dumpJson(out);
         }
     }

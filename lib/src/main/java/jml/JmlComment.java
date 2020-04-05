@@ -39,7 +39,8 @@ public class JmlComment {
     }
 
     public boolean isEnabled() {
-        return (boolean) c.getProperty(JML_ENABLED);
+        Boolean b = (Boolean) c.getProperty(JML_ENABLED);
+        return b!=null && b;
     }
 
     public String getContent() {

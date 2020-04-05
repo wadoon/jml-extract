@@ -2,10 +2,12 @@ package jml;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Comment;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Alexander Weigl
@@ -31,4 +33,12 @@ public class ASTProperties {
         getReferencedJmlComments(node, true).add(comment);
         comment.setEffectedNode(node);
     }
+
+    public static List<JmlComment> getJmlComments(CompilationUnit unit) {
+        @SuppressWarnings("unchecked")
+        List<Comment> list = unit.getCommentList();
+        return list.stream().map(ASTProperties::wrap)
+                .filter(JmlComment::isEnabled).collect(Collectors.toList());
+    }
+
 }
