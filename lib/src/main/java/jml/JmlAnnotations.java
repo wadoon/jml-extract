@@ -17,13 +17,13 @@ import java.util.TreeSet;
  * @version 1 (2/2/20)
  * @see jml.services.IJmlTagger
  */
-public class JmlAnnotation {
+public class JmlAnnotations {
     private @Nullable Set<String> set = null;
 
-    public JmlAnnotation() {
+    public JmlAnnotations() {
     }
 
-    public JmlAnnotation(@Nullable Set<String> set) {
+    public JmlAnnotations(@Nullable Set<String> set) {
         if (set != null && !set.isEmpty()) {
             this.set = new TreeSet<>(set);
         }

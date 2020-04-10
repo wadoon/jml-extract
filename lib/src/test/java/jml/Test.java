@@ -11,13 +11,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
 public class Test {
     @org.junit.jupiter.api.Test
     void a() {
-        ASTParser parser = JmlCore.createParser(JavaCore.VERSION_1_8);
+        ASTParser parser = JmlCore.createParser(new HashMap<>());
         parser.createASTs(
                 new String[]{"../example/Abc.java"}, new String[]{"utf-8"}, new String[]{"bind"}, new FileASTRequestor() {
                     @Override
@@ -63,7 +64,7 @@ public class Test {
 
     @org.junit.jupiter.api.Test
     void c() {
-        ASTParser parser = JmlCore.createParser(JavaCore.VERSION_1_8);
+        ASTParser parser = JmlCore.createParser(new HashMap<>());
         parser.setEnvironment(null, null, null, true);
         parser.setSource("public class Test {Integer i = 2;}".toCharArray());
         parser.setUnitName("Test");
@@ -118,7 +119,7 @@ public class Test {
         try (Writer out = new PrintWriter(System.out)) {
             if (e.getResult() != null) {
                 p.dumpJson(out, Stream.of(e.getResult()));
-            }else{
+            } else {
                 for (Object a : e.getContext().getProblems()) {
                     System.err.println(a);
                 }

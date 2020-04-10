@@ -35,9 +35,23 @@ public class JmlProject {
 
     private String encoding = "utf-8";
 
+    /**
+     *
+     */
     private boolean jmlEnabled = true;
+    /**
+     *
+     */
     private boolean jmlAttachingEnabled = true;
+    /**
+     *
+     */
     private boolean jmlAnnotationProcessingEnabled = true;
+
+    /**
+     *
+     */
+    private @NotNull AST astFactory = null;
 
     /**
      * Experimental
@@ -79,7 +93,7 @@ public class JmlProject {
                 jc.setEnabled(true);
                 jc.setContent(str);
                 jc.setType(type);
-                jc.setAnnotations(new JmlAnnotation(detection.getAnnotationKeys(str)));
+                jc.setAnnotations(new JmlAnnotations(detection.getAnnotationKeys(str)));
                 commentList.add(jc);
             }
         }
@@ -108,7 +122,8 @@ public class JmlProject {
         }
     }
 
-    JmlProject(ASTParser parser) {
+    JmlProject(AST ast, ASTParser parser) {
+        astFactory = ast;
         this.parser = parser;
     }
 
@@ -136,6 +151,13 @@ public class JmlProject {
         return ASTProperties.getReferencedJmlComments(node, false);
     }
 
+    /**
+     * @return
+     */
+    public @NotNull AST getAstFactory() {
+        return astFactory;
+    }
+    
     public PartialAst<Expression> compileExpression(String expr) {
         String name = String.format("Expr%010d", ++uniqueCounter);
         String source = String.format("public class %s { public Object a() { return %s; } }",

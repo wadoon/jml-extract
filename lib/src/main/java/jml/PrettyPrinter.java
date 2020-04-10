@@ -1,6 +1,6 @@
 package jml;
 
-import jml.services.JmlCommentPrinter;
+import jml.services.IJmlCommentPrinter;
 import lombok.Getter;
 import lombok.Setter;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -17,7 +17,7 @@ import java.util.PriorityQueue;
 public class PrettyPrinter extends NaiveASTFlattener {
     @Getter
     @Setter
-    private JmlCommentPrinter jmlPrinter;
+    private IJmlCommentPrinter jmlPrinter;
 
     @Getter
     @Setter
@@ -25,7 +25,7 @@ public class PrettyPrinter extends NaiveASTFlattener {
 
     private final PriorityQueue<JmlComment> comments;
 
-    public PrettyPrinter(List<JmlComment> comments, JmlCommentPrinter jmlPrinter) {
+    public PrettyPrinter(List<JmlComment> comments, IJmlCommentPrinter jmlPrinter) {
         super();
         this.comments = new PriorityQueue<>(Comparator.comparingInt(JmlComment::getStartPosition));
         this.comments.addAll(comments);

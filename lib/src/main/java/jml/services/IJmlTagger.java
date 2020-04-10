@@ -1,6 +1,6 @@
 package jml.services;
 
-import jml.JmlAnnotation;
+import jml.JmlAnnotations;
 import jml.JmlComment;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
  * This services is responsible for re-tagging of Jml comments.
  * <p>
  * Re-tagging means, that after a JmlAst is created, you can decide whether the corresponding
- * Jml comment should receive different {@link JmlAnnotation}s.
+ * Jml comment should receive different {@link JmlAnnotations}s.
  *
  * <p>
  * For example you want to tag, that certain operators are not suitable for KeY, then you should detect these in

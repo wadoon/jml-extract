@@ -1,15 +1,16 @@
 package jml.impl;
 
 import jml.JmlComment;
-import jml.services.JmlCommentPrinter;
+import jml.services.IJmlCommentPrinter;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Alexander Weigl
  * @version 1 (4/5/20)
  */
-public class SimpleJmlCommentPrinter implements JmlCommentPrinter {
+public class SimpleJmlCommentPrinter implements IJmlCommentPrinter {
     @Override
-    public void print(StringBuffer buf, JmlComment comment, String indent, boolean debug) {
+    public void print(@NotNull StringBuffer buf, @NotNull JmlComment comment, @NotNull String indent, boolean debug) {
         if (comment != null) {
             printWithNewIndent(comment.getContent(), buf, indent);
             if (debug) {

@@ -59,11 +59,11 @@ public class JmlComment {
         c.setProperty(JML_TYPE, type);
     }
 
-    public JmlAnnotation getAnnotations() {
-        return (JmlAnnotation) c.getProperty(JML_ANNOTATIONS);
+    public JmlAnnotations getAnnotations() {
+        return (JmlAnnotations) c.getProperty(JML_ANNOTATIONS);
     }
 
-    public void setAnnotations(JmlAnnotation annotationKeys) {
+    public void setAnnotations(JmlAnnotations annotationKeys) {
         c.setProperty(JML_ANNOTATIONS, annotationKeys);
     }
 

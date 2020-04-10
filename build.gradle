@@ -7,6 +7,7 @@ allprojects {
     }
 }
 
+
 subprojects {
     apply plugin: "java"
     apply plugin: "maven-publish"
@@ -14,6 +15,9 @@ subprojects {
         classifier = "sources"
         from(sourceSets.main.allSource)
     }
+
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
 
     publishing {
         repositories {

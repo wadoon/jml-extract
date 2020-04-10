@@ -35,22 +35,26 @@ public class JmlCore {
         defaultServices.register(new JmlTypeInference(), IJmlTypeInference.class);
 
     }
-    public static JmlProject createProject(String version) {
-        return new JmlProject(createParser(version));
-    }
 
-    public static ASTParser createParser(String version) {
-        ASTParser parser = ASTParser.newParser(AST.JLS13);
+    public static JmlProject createProject(String version) {
         Map<String, String> options = JavaCore.getOptions();
         JavaCore.setComplianceOptions(version, options);
+        return new JmlProject(
+                AST.newAST(options),
+                createParser(options));
+    }
+
+    public static ASTParser createParser(Map<String, String> options) {
+        ASTParser parser = ASTParser.newParser(AST.JLS13);
         parser.setCompilerOptions(options);
         parser.setResolveBindings(true);
-        parser.setEnvironment(null, null, null, true);
+        parser.setEnvironment(null, null,
+                null, true);
         return parser;
     }
 
     public static JmlProject createProject() {
-        return createProject(JavaCore.VERSION_1_8);
+        return createProject(JavaCore.VERSION_13);
     }
 
     public static String getVersion() {

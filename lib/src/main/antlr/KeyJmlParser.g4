@@ -976,7 +976,7 @@ expr  :
 
     | expr (LT LT | GT GT GT | GT GT) expr                                                                   #exprShifts
 
-    | expr op=(LE|GE|GT|LT|INSTANCEOF|ST) expr                                                           #exprRelational
+    | expr (op=(LE|GE|GT|LT|INSTANCEOF|ST) expr)+                                                        #exprRelational
 
     // ST is for type comparison
     | expr op=(EQUAL|NOTEQUAL) expr                                                                      #exprEqualities

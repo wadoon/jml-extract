@@ -15,9 +15,10 @@ By using the Eclipse Java compiler (ECJ), we support **Java 13**.
  
 We plan to support following *levels*:
 
-* [x] **Level 0:** JML specification are attached as `Strings` to the AST nodes. 
-      This gives the highest flexibility as JML keeps untouched.
-    * [ ] **Level 0+:** Support for adding annotation processors for translation of annotation to JML specification.      
+* [x] **Level 0:** JML specification are attached as `Strings` to the corresponding AST nodes. 
+      This gives the highest flexibility as JML keeps untouched, but you need to write your own JML parsing.
+    * [x] **Level 0+:** Support for adding annotation processors for translation of annotation to JML specification.      
+      You can use ```IJmlAnnotationProcessor``` to translate into 
 * [ ] **Level 1:** Providing a parse tree of the JML comments. 
     * *Open question: How should we deal with Java blocks inside JML, e.g. Java in Lambda functions.*
 * [ ] **Level 2:** Type-inference of the JML parse trees 
