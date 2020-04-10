@@ -1,0 +1,479 @@
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="shortcut icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1, mkdocs-material-5.0.2">
+    
+    
+      
+        <title>jml-extract</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.07c9fbf5.min.css">
+      
+        <link rel="stylesheet" href="assets/stylesheets/palette.ecd4686e.min.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#009688">
+      
+    
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="teal" data-md-color-accent="indigo">
+  
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#jml-extract" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="." title="jml-extract" class="md-header-nav__button md-logo" aria-label="jml-extract">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,8A3,3 0 0,0 15,5A3,3 0 0,0 12,2A3,3 0 0,0 9,5A3,3 0 0,0 12,8M12,11.54C9.64,9.35 6.5,8 3,8V19C6.5,19 9.64,20.35 12,22.54C14.36,20.35 17.5,19 21,19V8C17.5,8 14.36,9.35 12,11.54Z" /></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      
+        <div class="md-header-nav__ellipsis">
+          <span class="md-header-nav__topic md-ellipsis">
+            jml-extract
+          </span>
+          <span class="md-header-nav__topic md-ellipsis">
+            
+              jml-extract [![Build Status](https://travis-ci.com/wadoon/jml-extract.svg?branch=master)](https://travis-ci.com/wadoon/jml-extract) [![CodeFactor](https://www.codefactor.io/repository/github/wadoon/jml-extract/badge)](https://www.codefactor.io/repository/github/wadoon/jml-extract)
+            
+          </span>
+        </div>
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" /></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" /></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+        
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="jml-extract" class="md-nav__button md-logo" aria-label="jml-extract">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12,8A3,3 0 0,0 15,5A3,3 0 0,0 12,2A3,3 0 0,0 9,5A3,3 0 0,0 12,8M12,11.54C9.64,9.35 6.5,8 3,8V19C6.5,19 9.64,20.35 12,22.54C14.36,20.35 17.5,19 21,19V8C17.5,8 14.36,9.35 12,11.54Z" /></svg>
+
+    </a>
+    jml-extract
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        jml-extract [![Build Status](https://travis-ci.com/wadoon/jml-extract.svg?branch=master)](https://travis-ci.com/wadoon/jml-extract) [![CodeFactor](https://www.codefactor.io/repository/github/wadoon/jml-extract/badge)](https://www.codefactor.io/repository/github/wadoon/jml-extract)
+        <span class="md-nav__icon md-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3,9H17V7H3V9M3,13H17V11H3V13M3,17H17V15H3V17M19,17H21V15H19V17M19,7V9H21V7H19M19,13H21V11H19V13Z" /></svg>
+        </span>
+      </label>
+    
+    <a href="." title="jml-extract [![Build Status](https://travis-ci.com/wadoon/jml-extract.svg?branch=master)](https://travis-ci.com/wadoon/jml-extract) [![CodeFactor](https://www.codefactor.io/repository/github/wadoon/jml-extract/badge)](https://www.codefactor.io/repository/github/wadoon/jml-extract)" class="md-nav__link md-nav__link--active">
+      jml-extract [![Build Status](https://travis-ci.com/wadoon/jml-extract.svg?branch=master)](https://travis-ci.com/wadoon/jml-extract) [![CodeFactor](https://www.codefactor.io/repository/github/wadoon/jml-extract/badge)](https://www.codefactor.io/repository/github/wadoon/jml-extract)
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started-with-the-api" class="md-nav__link">
+    Getting Started with the API
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-command-line" class="md-nav__link">
+    Usage - Command Line
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    Architecture
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-steps" class="md-nav__link">
+    Process Steps
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-of-development-todos" class="md-nav__link">
+    State of development (TODOs)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20,11V13H8L13.5,18.5L12.08,19.92L4.16,12L12.08,4.08L13.5,5.5L8,11H20Z" /></svg>
+      </span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started-with-the-api" class="md-nav__link">
+    Getting Started with the API
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-command-line" class="md-nav__link">
+    Usage - Command Line
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture" class="md-nav__link">
+    Architecture
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#process-steps" class="md-nav__link">
+    Process Steps
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#state-of-development-todos" class="md-nav__link">
+    State of development (TODOs)
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                  
+                
+                
+                <h1 id="jml-extract">jml-extract <a href="https://travis-ci.com/wadoon/jml-extract"><img alt="Build Status" src="https://travis-ci.com/wadoon/jml-extract.svg?branch=master" /></a> <a href="https://www.codefactor.io/repository/github/wadoon/jml-extract"><img alt="CodeFactor" src="https://www.codefactor.io/repository/github/wadoon/jml-extract/badge" /></a><a class="headerlink" href="#jml-extract" title="Permanent link">&para;</a></h1>
+<p><em>jml-extract</em> provides functionality to extract Java Modelling Language (JML) 
+specification from Java Source Files. 
+The result are a typed AST with JML-annotated nodes.</p>
+<p><em>Mission statement:</em> Our goals is to deliver a versatile, simple, lightweight tool that 
+enables the experimenting with the JML or building analysis tools that support Java/JML.</p>
+<p>This project delivers an API for use inside other verification tools and 
+a simple cli interface which dumps the information into JSON files.</p>
+<p>By using the Eclipse Java compiler (ECJ), we support <strong>Java 13</strong>.</p>
+<p>We plan to support following <em>levels</em>:</p>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <strong>Level 0:</strong> JML specification are attached as <code>Strings</code> to the corresponding AST nodes. 
+      This gives the highest flexibility as JML keeps untouched, but you need to write your own JML parsing.<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled checked/><span class="task-list-indicator"></span></label> <strong>Level 0+:</strong> Support for adding annotation processors for translation of annotation to JML specification.    <br />
+  You can use <code>IJmlAnnotationProcessor</code> to translate into </li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Level 1:</strong> Providing a parse tree of the JML comments. <ul>
+<li><em>Open question: How should we deal with Java blocks inside JML, e.g. Java in Lambda functions.</em></li>
+</ul>
+</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> <strong>Level 2:</strong> Type-inference of the JML parse trees </li>
+</ul>
+<h2 id="getting-started-with-the-api">Getting Started with the API<a class="headerlink" href="#getting-started-with-the-api" title="Permanent link">&para;</a></h2>
+<p>See <a href="https://github.com/wadoon/jml-extract/packages">Packages</a> for information on the 
+Maven repository and available packages.</p>
+<p><strong>Note:</strong> identifier of groups, artefacts, packages are not fixed yet.</p>
+<div class="highlight"><pre><span></span><code><span class="n">JmlProject</span> <span class="n">core</span> <span class="o">=</span> <span class="n">JmlCore</span><span class="o">.</span><span class="na">create</span><span class="o">();</span>
+<span class="n">core</span><span class="o">.</span><span class="na">setEnvironment</span><span class="o">(</span><span class="n">classpath</span><span class="o">,</span> <span class="n">sourcefiles</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">CompilationUnit</span><span class="o">&gt;</span> <span class="n">units</span> <span class="o">=</span> <span class="n">core</span><span class="o">.</span><span class="na">compileAllIn</span><span class="o">(</span><span class="s">&quot;../examples&quot;</span><span class="o">);</span>
+</code></pre></div>
+
+<h2 id="usage-command-line">Usage - Command Line<a class="headerlink" href="#usage-command-line" title="Permanent link">&para;</a></h2>
+<p>Get a version of the command line via: <code>grade :exe:shadowJar</code>, which generates the 
+executable jar file <code>exe/build/libs/exe-*all.jar</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">Usage</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;main class&gt; [-hv] [--expr] [--in] [--no-bodies]</span>
+                    <span class="l l-Scalar l-Scalar-Plain">[--show-compiler-options] [--stmt] [--version] [--[no-]</span>
+                    <span class="l l-Scalar l-Scalar-Plain">vm-classpath] [--encoding=&lt;encoding&gt;]</span>
+                    <span class="l l-Scalar l-Scalar-Plain">[--java-version=&lt;javaVersion&gt;] [-P=KEY=VALUE]...</span>
+                    <span class="l l-Scalar l-Scalar-Plain">[-c=PATH...]... [-s=PATH...]... [PATH...]</span>
+      <span class="l l-Scalar l-Scalar-Plain">[PATH...]</span>
+  <span class="l l-Scalar l-Scalar-Plain">-c, -cp, --classpath=PATH...</span>
+                            <span class="l l-Scalar l-Scalar-Plain">specify classpath. Entries need to JAR files and</span>
+                              <span class="l l-Scalar l-Scalar-Plain">folder. You can use &#39;:&#39; for sepearation</span>
+      <span class="l l-Scalar l-Scalar-Plain">--encoding=&lt;encoding&gt; set the encoding of the source files</span>
+      <span class="l l-Scalar l-Scalar-Plain">--expr                treat input as an expression</span>
+  <span class="l l-Scalar l-Scalar-Plain">-h, --help                show this help message</span>
+      <span class="l l-Scalar l-Scalar-Plain">--in                  read Java source from stdin</span>
+      <span class="l l-Scalar l-Scalar-Plain">--java-version=&lt;javaVersion&gt;</span>
+                            <span class="l l-Scalar l-Scalar-Plain">for future, currently not supported by JmlCore</span>
+      <span class="l l-Scalar l-Scalar-Plain">--no-bodies           do not parse the bodies of the methods</span>
+  <span class="l l-Scalar l-Scalar-Plain">-P=KEY=VALUE              set ecj compiler options. `--show-compiler-options`</span>
+                              <span class="l l-Scalar l-Scalar-Plain">shows all options</span>
+  <span class="l l-Scalar l-Scalar-Plain">-s, --source=PATH...      Source file to compile against. These files are no</span>
+                              <span class="l l-Scalar l-Scalar-Plain">taken into account for dumping.</span>
+      <span class="l l-Scalar l-Scalar-Plain">--show-compiler-options</span>
+                            <span class="l l-Scalar l-Scalar-Plain">shows all underlying compiler options</span>
+      <span class="l l-Scalar l-Scalar-Plain">--stmt                treat input as statements</span>
+  <span class="l l-Scalar l-Scalar-Plain">-v, --[no-]verbose</span>
+      <span class="l l-Scalar l-Scalar-Plain">--version             show program version</span>
+      <span class="l l-Scalar l-Scalar-Plain">--[no-]vm-classpath</span>
+</code></pre></div>
+
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Simple Layer upon on the Eclipse Java Compiler (<code>JmlProject.java</code>)</li>
+<li><code>JmlProject</code> uses a lookup register for finding services.</li>
+<li>Services provides the functionality <code>jml.services</code>.</li>
+<li>Services are replaceable, e.g. customizing </li>
+</ul>
+<h2 id="process-steps">Process Steps<a class="headerlink" href="#process-steps" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Parsing of a Java file including type informations. done by ECJ.</li>
+<li>Result: <code>CompilationUnit</code></li>
+<li>JML Pipeline triggers (<code>JmlProject::annotateWithJml</code>):</li>
+<li>Recognise JML comments: (<code>IJmlDetection</code>).<ul>
+<li>Each comment is analyzed if it is a JML comment</li>
+<li>Information attached to <code>Comment</code> ast node.</li>
+<li>Wrapper class for access these information <code>JmlComment</code></li>
+</ul>
+</li>
+<li>Assigning JML comments to AST nodes (<code>IJmlAttacher</code>)<ul>
+<li>Based upon the type of a JML comment. </li>
+<li>Information is put into as an additional property in the ASTNode. Access via <code>ASTProperties</code>.</li>
+</ul>
+</li>
+<li>Annotation Processing for translating type annotation into JML specifications 
+        (<code>IJmlAnnotationProcessor</code>).<ul>
+<li><strong>LEVEL 0</strong> ends here.</li>
+</ul>
+</li>
+<li><strong>TODO</strong> Parse the JML comments into <code>ParserRuleContext</code> (antlr4's parse tree) (<code>IJmlAstFactory</code>).<ul>
+<li>See the grammar definitions <code>KeYJmlParser.g4</code>.</li>
+</ul>
+</li>
+<li>Re-annotating the JML comments.<ul>
+<li>JML comments have annotation, a list of identifiers with "+" or "-" as prefix. 
+    The annotations should help tools to filter out comments which are not meant for them.</li>
+<li>In this step, hooks can update the annotation based upon the ast.</li>
+<li><strong>LEVEL 1</strong> ends here.</li>
+</ul>
+</li>
+<li><strong>TODO</strong> We support a type inference for JML expression. <ul>
+<li>The idea is to rewrite JML into Java and using the Java compiler.</li>
+<li>We need to translate certain aspect also in to this synthetic Java, e.g. </li>
+<li>Requires rewriting of JML identifiers, and also support for 
+    JML constants, sorts, functions, predicates.</li>
+</ul>
+</li>
+</ol>
+<h2 id="state-of-development-todos">State of development (TODOs)<a class="headerlink" href="#state-of-development-todos" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> proper error handling, </li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> propagate/accessibility for ECJ errors</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> deliver errors from JML </li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Support of <code>*.jml</code> files</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Unit and integration tests</li>
+</ul>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="assets/javascripts/vendor.36cbf620.min.js"></script>
+      <script src="assets/javascripts/bundle.00c583dd.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents"}</script>
+      
+      <script>
+        app = initialize({
+          base: ".",
+          features: [],
+          search: Object.assign({
+            worker: "assets/javascripts/worker/search.7f7c8775.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+      
+    
+  </body>
+</html>
