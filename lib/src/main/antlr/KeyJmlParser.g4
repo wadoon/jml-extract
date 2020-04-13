@@ -621,7 +621,13 @@ arguments
 
 /**
 */
-jmlAny:   jmlContract | jmlClassElem | jmlModifier |  jmlBlockCntr | jmlAnnotation;
+jmlAny: JML_START jmlAnyInner (JML_END|EOF);
+jmlAnyInner:
+          methodContracts mod*
+        | classElem
+        | mod (COMMA? mod)*
+        | annot+
+        ;
 
 jmlContract     : JML_START methodContracts mod* (JML_END|EOF)
                 ;
@@ -646,8 +652,8 @@ jmlBlockCntr    : JML_START blockContracts (JML_END|EOF)
 /**
 
 */
-classElem       : classSpec+  |  modelMethod
-                ;
+classElem   : classSpec+  |  modelMethod
+            ;
 /**
 
 */
@@ -703,11 +709,8 @@ methodContracts : ALSO? methodContract ( ALSO methodContract )*
 
 methodContract  : visibility?
                   behavior=( BEHAVIOR | NORMAL_BEHAVIOR | EXCEPTIONAL_BEHAVIOR)?
-                  (clause |
-                    JC_NESTED_CONTRACT_START
-                    methodContracts
-                    JC_NESTED_CONTRACT_END
-                  )*
+                  (bclause)*
+                  (JC_NESTED_CONTRACT_START methodContracts JC_NESTED_CONTRACT_END)*
                 ;
 
 /**
@@ -965,7 +968,7 @@ expr  :
     | SUB expr                                                                                           #exprUnaryMinus
     | BANG expr                                                                                       #exprLogicalNegate
     | TILDE expr                                                                                       #exprBinaryNegate
-    | NEW (id DOT)* id                                                                                          #exprNew
+    | NEW (id DOT)* id LPAREN exprs? RPAREN                                                                     #exprNew
     | expr bop=DOT id                                                                                            #access
     | expr bop=DOT MUL                                                                                           #locAll
 

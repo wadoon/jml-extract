@@ -80,7 +80,7 @@ public class SimpleJmlDetection implements IJmlDetection {
 
                 case KeyJmlLexer.MODEL:
                 case KeyJmlLexer.MODEL_METHOD_AXIOM:
-                    return JmlComment.Type.MODEL;
+                    return JmlComment.Type.MODEL_FIELD; //TODO decide between field or method
 
                 case KeyJmlLexer.INVARIANT:
                 case KeyJmlLexer.CONSTRAINT:

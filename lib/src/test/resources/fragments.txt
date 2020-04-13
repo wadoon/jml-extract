@@ -1,6 +1,261 @@
-<<<<<<<
+%start
 var a = 2;
-=======
+%expected
+[
+  {
+    "class": "org.eclipse.jdt.core.dom.Block",
+    "start": 52,
+    "length": 15,
+    "nodeType": 8,
+    "flags": 2,
+    "statements": [
+      {
+        "class": "org.eclipse.jdt.core.dom.VariableDeclarationStatement",
+        "start": 54,
+        "length": 10,
+        "nodeType": 60,
+        "flags": 2,
+        "type": {
+          "class": "org.eclipse.jdt.core.dom.SimpleType",
+          "start": 54,
+          "length": 3,
+          "nodeType": 43,
+          "flags": 2,
+          "fullyQualifiedName": "int",
+          "isVar": true,
+          "name": {
+            "class": "org.eclipse.jdt.core.dom.SimpleName",
+            "start": 54,
+            "length": 3,
+            "nodeType": 42,
+            "flags": 2,
+            "value": "var",
+            "boxing": false,
+            "unboxing": false,
+            "type": "I"
+          }
+        },
+        "fragments": [
+          {
+            "class": "org.eclipse.jdt.core.dom.VariableDeclarationFragment",
+            "start": 58,
+            "length": 5,
+            "nodeType": 59,
+            "flags": 2,
+            "name": {
+              "class": "org.eclipse.jdt.core.dom.SimpleName",
+              "start": 58,
+              "length": 1,
+              "nodeType": 42,
+              "flags": 2,
+              "value": "a",
+              "boxing": false,
+              "unboxing": false,
+              "type": "I"
+            },
+            "initializer": {
+              "class": "org.eclipse.jdt.core.dom.NumberLiteral",
+              "start": 62,
+              "length": 1,
+              "nodeType": 34,
+              "flags": 2,
+              "value": "2",
+              "boxing": false,
+              "unboxing": false,
+              "constantExprValue": 2,
+              "type": "I"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
+%end
+
+%start
+String[][][] a = new String[2][10][1000];
+%expected
+[
+  {
+    "class": "org.eclipse.jdt.core.dom.Block",
+    "start": 52,
+    "length": 46,
+    "nodeType": 8,
+    "flags": 2,
+    "statements": [
+      {
+        "class": "org.eclipse.jdt.core.dom.VariableDeclarationStatement",
+        "start": 54,
+        "length": 41,
+        "nodeType": 60,
+        "flags": 2,
+        "type": {
+          "class": "org.eclipse.jdt.core.dom.ArrayType",
+          "start": 54,
+          "length": 12,
+          "nodeType": 5,
+          "flags": 2,
+          "elementType": {
+            "class": "org.eclipse.jdt.core.dom.SimpleType",
+            "start": 54,
+            "length": 6,
+            "nodeType": 43,
+            "flags": 2,
+            "isVar": false,
+            "name": {
+              "class": "org.eclipse.jdt.core.dom.SimpleName",
+              "start": 54,
+              "length": 6,
+              "nodeType": 42,
+              "flags": 2,
+              "value": "String",
+              "boxing": false,
+              "unboxing": false
+            }
+          },
+          "dimensions": [
+            {
+              "class": "org.eclipse.jdt.core.dom.Dimension",
+              "start": 60,
+              "length": 2,
+              "nodeType": 85,
+              "flags": 2
+            },
+            {
+              "class": "org.eclipse.jdt.core.dom.Dimension",
+              "start": 62,
+              "length": 2,
+              "nodeType": 85,
+              "flags": 2
+            },
+            {
+              "class": "org.eclipse.jdt.core.dom.Dimension",
+              "start": 64,
+              "length": 2,
+              "nodeType": 85,
+              "flags": 2
+            }
+          ]
+        },
+        "fragments": [
+          {
+            "class": "org.eclipse.jdt.core.dom.VariableDeclarationFragment",
+            "start": 67,
+            "length": 27,
+            "nodeType": 59,
+            "flags": 2,
+            "name": {
+              "class": "org.eclipse.jdt.core.dom.SimpleName",
+              "start": 67,
+              "length": 1,
+              "nodeType": 42,
+              "flags": 2,
+              "value": "a",
+              "boxing": false,
+              "unboxing": false
+            },
+            "initializer": {
+              "class": "org.eclipse.jdt.core.dom.ArrayCreation",
+              "start": 71,
+              "length": 23,
+              "nodeType": 3,
+              "flags": 2,
+              "boxing": false,
+              "unboxing": false,
+              "type": {
+                "class": "org.eclipse.jdt.core.dom.ArrayType",
+                "start": 75,
+                "length": 19,
+                "nodeType": 5,
+                "flags": 2,
+                "elementType": {
+                  "class": "org.eclipse.jdt.core.dom.SimpleType",
+                  "start": 75,
+                  "length": 6,
+                  "nodeType": 43,
+                  "flags": 2,
+                  "isVar": false,
+                  "name": {
+                    "class": "org.eclipse.jdt.core.dom.SimpleName",
+                    "start": 75,
+                    "length": 6,
+                    "nodeType": 42,
+                    "flags": 2,
+                    "value": "String",
+                    "boxing": false,
+                    "unboxing": false
+                  }
+                },
+                "dimensions": [
+                  {
+                    "class": "org.eclipse.jdt.core.dom.Dimension",
+                    "start": 81,
+                    "length": 3,
+                    "nodeType": 85,
+                    "flags": 2
+                  },
+                  {
+                    "class": "org.eclipse.jdt.core.dom.Dimension",
+                    "start": 84,
+                    "length": 4,
+                    "nodeType": 85,
+                    "flags": 2
+                  },
+                  {
+                    "class": "org.eclipse.jdt.core.dom.Dimension",
+                    "start": 88,
+                    "length": 6,
+                    "nodeType": 85,
+                    "flags": 2
+                  }
+                ]
+              },
+              "dimensions": [
+                {
+                  "class": "org.eclipse.jdt.core.dom.NumberLiteral",
+                  "start": 82,
+                  "length": 1,
+                  "nodeType": 34,
+                  "flags": 2,
+                  "value": "2",
+                  "boxing": false,
+                  "unboxing": false
+                },
+                {
+                  "class": "org.eclipse.jdt.core.dom.NumberLiteral",
+                  "start": 85,
+                  "length": 2,
+                  "nodeType": 34,
+                  "flags": 2,
+                  "value": "10",
+                  "boxing": false,
+                  "unboxing": false
+                },
+                {
+                  "class": "org.eclipse.jdt.core.dom.NumberLiteral",
+                  "start": 89,
+                  "length": 4,
+                  "nodeType": 34,
+                  "flags": 2,
+                  "value": "1000",
+                  "boxing": false,
+                  "unboxing": false
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
+%end
+
+
+%start
+var abc = Object::new;
+%expected
 [
   {
     "class": "org.eclipse.jdt.core.dom.Block",
@@ -64,7 +319,6 @@ var a = 2;
                 "length": 6,
                 "nodeType": 43,
                 "flags": 2,
-                "fullyQualifiedName": "java.lang.Object",
                 "isVar": false,
                 "name": {
                   "class": "org.eclipse.jdt.core.dom.SimpleName",
@@ -74,8 +328,7 @@ var a = 2;
                   "flags": 2,
                   "value": "Object",
                   "boxing": false,
-                  "unboxing": false,
-                  "type": "java.lang.Object"
+                  "unboxing": false
                 }
               }
             }
@@ -85,17 +338,4 @@ var a = 2;
     ]
   }
 ]
->>>>>>>
-
-<<<<<<<
-String[][][] a = new String[2][10][1000];
-=======
-
->>>>>>>
-
-
-<<<<<<<
-var abc = Object::new;
-=======
-
->>>>>>>
+%end

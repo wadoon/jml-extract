@@ -27,11 +27,13 @@ public class JmlSerializer extends KeyJmlParserBaseVisitor<Object> {
         return createMap((ParserRuleContext) tree);
     }
 
+
+    /*
     @Override
     public Object visitJmlAny(KeyJmlParser.JmlAnyContext ctx) {
         return oneOf(ctx.jmlAnnotation(), ctx.jmlBlockCntr(), ctx.jmlClassElem(),
                 ctx.jmlContract(), ctx.jmlModifier());
-    }
+    }*/
 
     private Object oneOf(ParseTree... ctxs) {
         for (ParseTree ctx : ctxs) {
@@ -178,7 +180,7 @@ public class JmlSerializer extends KeyJmlParserBaseVisitor<Object> {
     @Override
     public Object visitMethodContract(KeyJmlParser.MethodContractContext ctx) {
         var map = createMap(ctx);
-        map.put("clauses", mapOf(ctx.clause()));
+        map.put("clauses", mapOf(ctx.bclause()));
         return map;
     }
 

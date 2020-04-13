@@ -1,11 +1,14 @@
 package jml;
 
+import lombok.Getter;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Comment;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Alexander Weigl
@@ -20,9 +23,8 @@ public class JmlComment {
     private static final String JML_AST = "JML_AST";
     private static final String JML_AST_PARSING_ERRORS = "JML_AST_PARSING_ERRORS";
     private static final String JML_AST_TYPE_ERRORS = "JML_AST_TYPE_ERRORS";
-
-
     private static final String JML_PARSER_ERRORS = "JML_PARSER_ERRORS";
+    private static final String JML_EXPR_TYPES = "JML_EXPR_TYPES";
 
     private final Comment c;
 
@@ -40,7 +42,7 @@ public class JmlComment {
 
     public boolean isEnabled() {
         Boolean b = (Boolean) c.getProperty(JML_ENABLED);
-        return b!=null && b;
+        return b != null && b;
     }
 
     public String getContent() {
@@ -79,19 +81,60 @@ public class JmlComment {
         return c;
     }
 
+    public Map<ParserRuleContext, org.eclipse.jdt.core.dom.Type> getExprTypes() {
+        return (Map<ParserRuleContext, org.eclipse.jdt.core.dom.Type>) wrapped().getProperty(JML_EXPR_TYPES);
+    }
+
+    public void setExprTypes(Map<ParserRuleContext, ITypeBinding> given) {
+        wrapped().setProperty(JML_EXPR_TYPES, given);
+    }
+
+
+    public enum MetaType {
+        UNKNOWN, STATEMENT, CONTRACT, FIELD, METHOD, MODIFIER, INVARIANT;
+    }
+
+    public enum AttacherType {
+        UNKNOWN,
+        NEXT_DECLARATION,
+        NEXT_STATEMENT,
+        NEXT_METHOD,
+        NEXT_FIELD,
+        NEXT_LOOP,
+        NEXT_BLOCK,
+        CONTAINING_TYPE;
+    }
+
+
     public enum Type {
         UNKNOWN,
-        GHOST_FIELD,
-        MODEL,
-        CLASS_INVARIANT,
-        LOOP_INVARIANT,
-        BLOCK_CONTRACT,
-        METHOD_CONTRACT,
-        MODIFIER,
-        GHOST_SET,
-        ASSUME,
-        ASSERT;
+        GHOST_FIELD(AttacherType.NEXT_LOOP, MetaType.CONTRACT),
+        MODEL_FIELD(AttacherType.CONTAINING_TYPE, MetaType.FIELD),
+        MODEL_METHOD(AttacherType.CONTAINING_TYPE, MetaType.METHOD),
+        CLASS_INVARIANT(AttacherType.CONTAINING_TYPE, MetaType.INVARIANT),
+        LOOP_INVARIANT(AttacherType.NEXT_LOOP, MetaType.CONTRACT),
+        BLOCK_CONTRACT(AttacherType.NEXT_BLOCK, MetaType.CONTRACT),
+        METHOD_CONTRACT(AttacherType.NEXT_METHOD, MetaType.CONTRACT),
+        MODIFIER(AttacherType.NEXT_DECLARATION, MetaType.MODIFIER),
+        GHOST_SET(AttacherType.NEXT_STATEMENT, MetaType.STATEMENT),
+        ASSUME(AttacherType.NEXT_STATEMENT, MetaType.STATEMENT),
+        ASSERT(AttacherType.NEXT_STATEMENT, MetaType.STATEMENT);
+
+        @Getter
+        final MetaType metaType;
+        @Getter
+        final AttacherType attacherType;
+
+        Type() {
+            this(AttacherType.UNKNOWN, MetaType.UNKNOWN);
+        }
+
+        Type(AttacherType attacherType, MetaType metaType) {
+            this.attacherType = attacherType;
+            this.metaType = metaType;
+        }
     }
+
 
     public List<JmlProblem> getTypeErrors() {
         return (List<JmlProblem>) c.getProperty(JML_AST_TYPE_ERRORS);

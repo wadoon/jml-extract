@@ -1,5 +1,6 @@
 package jml;
 
+import jml.impl.DefaultJmlTyper;
 import jml.impl.SimpleJmlCommentPrinter;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
@@ -16,6 +17,20 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class Test {
+    @org.junit.jupiter.api.Test
+    void testTyping() throws IOException {
+        JmlProject project = JmlCore.createProject();
+        project.setJmlAstCreationEnabled(true);
+        project.setJmlAttachingEnabled(true);
+        project.setJmlEnabled(true);
+        final String fileName = "../example/JMLTest.java";
+        CompilationUnit cu = project.compileUnit(fileName);
+        project.processJml(fileName, cu);
+        DefaultJmlTyper t = new DefaultJmlTyper(project);
+        t.inferTypes(cu);
+
+    }
+
     @org.junit.jupiter.api.Test
     void a() {
         ASTParser parser = JmlCore.createParser(new HashMap<>());

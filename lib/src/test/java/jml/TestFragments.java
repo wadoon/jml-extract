@@ -33,19 +33,21 @@ public class TestFragments {
                 int cur = 0;
                 while ((tmp = br.readLine()) != null) {
                     if (tmp.startsWith("#")) continue;
-                    if (tmp.startsWith("<<<<<<<")) {
-                        a[2] = tmp.substring(7);
-                        if(a[2].trim().isEmpty()) a[2] = "" + (++counter);
+                    if (tmp.startsWith("%start")) {
+                        a[2] = tmp.substring(6);
+                        if (a[2].trim().isEmpty()) a[2] = "" + (++counter);
                         a[0] = a[1] = "";
                         cur = 0;
                         continue;
                     }
-                    if (tmp.startsWith("=======")) {
+                    if (tmp.startsWith("%expected")) {
                         cur = 1;
                         continue;
                     }
-                    if (tmp.startsWith(">>>>>>>")) {
-                        list.add(dynamicTest(a[2], () -> test(a[0], a[1])));
+                    if (tmp.startsWith("%end")) {
+                        String input = a[0];
+                        String expected = a[1];
+                        list.add(dynamicTest(a[2], () -> test(input, expected)));
                         continue;
                     }
                     a[cur] += tmp + "\n";

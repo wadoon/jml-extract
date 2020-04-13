@@ -33,27 +33,24 @@ public class JmlAttacher implements IJmlAttacher {
             return;
         }
 
-        switch (c.getType()) {
+        JmlComment.AttacherType at = c.getType().getAttacherType();
+        switch (at) {
             case UNKNOWN:
-            case GHOST_FIELD:
-            case MODEL:
-            case CLASS_INVARIANT:
+            case CONTAINING_TYPE:
                 attachToParent(c, TYPE_DECLARATION);
                 break;
-            case LOOP_INVARIANT:
+            case NEXT_LOOP:
                 attachToNextNode(c, WHILE_STATEMENT, FOR_STATEMENT, ENHANCED_FOR_STATEMENT, DO_STATEMENT);
                 break;
-            case BLOCK_CONTRACT:
+            case NEXT_BLOCK:
                 attachToNextNode(c, BLOCK);
-            case METHOD_CONTRACT:
+            case NEXT_METHOD:
                 attachToNextMethod(c);
                 break;
-            case MODIFIER:
+            case NEXT_DECLARATION:
                 attachToNextNode(c, FIELD_DECLARATION, METHOD_DECLARATION);
                 break;
-            case GHOST_SET:
-            case ASSUME:
-            case ASSERT:
+            case NEXT_STATEMENT:
                 insertIntoBlock(c, Statement.class);
                 break;
         }

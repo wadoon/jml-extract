@@ -15,6 +15,12 @@ tasks.test {
     useJUnitPlatform()
 }
 
+tasks.generateGrammarSource {
+    maxHeapSize = "1G"
+    arguments = arguments + listOf("-long-messages", "-Xlog", "-atn")
+}
+
+
 dependencies {
     compile("org.eclipse.jdt:org.eclipse.jdt.core:3.20.0")
     compile("com.google.code.gson:gson:2.8.6")

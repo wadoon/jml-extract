@@ -1,4 +1,4 @@
-# jml-extract [![Build Status](https://travis-ci.com/wadoon/jml-extract.svg?branch=master)](https://travis-ci.com/wadoon/jml-extract) [![CodeFactor](https://www.codefactor.io/repository/github/wadoon/jml-extract/badge)](https://www.codefactor.io/repository/github/wadoon/jml-extract)
+# jml-extract 
 
 *jml-extract* provides functionality to extract Java Modelling Language (JML) 
 specification from Java Source Files. 
@@ -19,22 +19,9 @@ We plan to support following *levels*:
       This gives the highest flexibility as JML keeps untouched, but you need to write your own JML parsing.
     * [x] **Level 0+:** Support for adding annotation processors for translation of annotation to JML specification.      
       You can use ```IJmlAnnotationProcessor``` to translate into 
-* [ ] **Level 1:** Providing a parse tree of the JML comments. 
+* [x] **Level 1:** Providing a parse tree of the JML comments. 
     * *Open question: How should we deal with Java blocks inside JML, e.g. Java in Lambda functions.*
 * [ ] **Level 2:** Type-inference of the JML parse trees 
-
-## Getting Started with the API
-
-See [Packages](https://github.com/wadoon/jml-extract/packages) for information on the 
-Maven repository and available packages.
-
-**Note:** identifier of groups, artefacts, packages are not fixed yet.
-
-```java
-JmlProject core = JmlCore.create();
-core.setEnvironment(classpath, sourcefiles);
-List<CompilationUnit> units = core.compileAllIn("../examples");
-```
 
 ## Usage - Command Line
 

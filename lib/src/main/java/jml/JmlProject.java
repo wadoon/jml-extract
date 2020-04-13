@@ -66,16 +66,16 @@ public class JmlProject {
      */
     private boolean jmlTypeInferenceEnabled = false;
 
-    private void annotateWithJml(String p, CompilationUnit ast) {
+    void processJml(String p, CompilationUnit ast) {
         try {
             String sourceCode = JmlCore.readString(p);
-            annotateWithJml(p, ast, sourceCode);
+            processJml(p, ast, sourceCode);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void annotateWithJml(String p, CompilationUnit ast, String sourceCode) {
+    void processJml(String p, CompilationUnit ast, String sourceCode) {
         if (!jmlEnabled) {
             return;
         }
@@ -157,7 +157,7 @@ public class JmlProject {
     public @NotNull AST getAstFactory() {
         return astFactory;
     }
-    
+
     public PartialAst<Expression> compileExpression(String expr) {
         String name = String.format("Expr%010d", ++uniqueCounter);
         String source = String.format("public class %s { public Object a() { return %s; } }",
@@ -169,7 +169,7 @@ public class JmlProject {
         try {
             ReturnStatement s = (ReturnStatement) body.statements().get(0);
             Expression result = s.getExpression();
-            this.annotateWithJml(name, cu, source);
+            this.processJml(name, cu, source);
             return new PartialAst<>(result, cu);
         } catch (IndexOutOfBoundsException e) {
             return new PartialAst<>(null, cu);
@@ -184,7 +184,7 @@ public class JmlProject {
         parser.setSource(source.toCharArray());
         CompilationUnit cu = (CompilationUnit) parser.createAST(monitor);
         Block body = ((TypeDeclaration) cu.types().get(0)).getMethods()[0].getBody();
-        annotateWithJml(name, cu, source);
+        processJml(name, cu, source);
         return new PartialAst<>(body, cu);
     }
 
@@ -197,9 +197,11 @@ public class JmlProject {
 
     public CompilationUnit compileUnit(String fileName, char[] contents) {
         parser.setSource(contents);
+        parser.setResolveBindings(true);
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
         ASTNode node = parser.createAST(monitor);
         CompilationUnit cu = (CompilationUnit) node.getRoot();
-        annotateWithJml(fileName, cu);
+        processJml(fileName, cu, new String(contents));
         return cu;
     }
 
@@ -249,7 +251,7 @@ public class JmlProject {
         ASTCollector collector = new ASTCollector();
         parser.createASTs(sourceFiles, encodings, bindingKeys, collector, monitor);
         Collection<CompilationUnit> cus = collector.getCompiledUnits().values();
-        collector.getCompiledUnits().forEach((this::annotateWithJml));
+        collector.getCompiledUnits().forEach(this::processJml);
         return cus;
     }
 

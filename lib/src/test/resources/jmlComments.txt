@@ -1,0 +1,24 @@
+/*@
+  public normal_behavior
+  ensures true;
+  requires true;
+  assignable \nothing;
+*/
+
+/*@ public normal_behaviour
+    ensures a!=0 ==> a!=2;
+    requires a!=0 && a%2==0;
+    assignable \nothing;
+*/
+
+/*@ non_null
+*/
+
+/*@ nullable_by_default
+*/
+
+/*@ loop_invariant true;
+*/
+
+/*@ loop_invariant a <= b <= c;
+*/
