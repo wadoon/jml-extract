@@ -27,7 +27,7 @@ public class DefaultJmlTyper {
         System.out.println(buf.getResult());
 
         //TODO find the appropriate filename
-        CompilationUnit typedUnit = project.compileUnit("../examples/JMLTest.java",
+        CompilationUnit typedUnit = project.compileUnit("../example/JMLTestT.java",
                 buf.getResult().toCharArray());
 
         //TODO Handle error reported in typedUnit.getMessages()
@@ -166,6 +166,13 @@ public class DefaultJmlTyper {
         @Override
         public boolean visit(WhileStatement node) {
             contractNode = node;
+            return super.visit(node);
+        }
+
+
+        @Override
+        public boolean visit(CompilationUnit node) {
+            buffer.append("class Enforce { public static boolean bool(boolean a) { return a; }}");
             return super.visit(node);
         }
 
@@ -379,7 +386,7 @@ public class DefaultJmlTyper {
             }
 
             private String enforceBool(KeyJmlParser.ExprContext expr) {
-                return "enforceBool(" + accept(expr) + ")";
+                return "Enforce.bool(" + accept(expr) + ")";
             }
 
             @Override

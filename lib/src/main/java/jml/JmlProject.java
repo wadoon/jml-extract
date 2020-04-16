@@ -4,7 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import jml.impl.AstSerializer;
 import jml.services.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +16,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,6 +70,13 @@ public class JmlProject {
      * Experimental
      */
     private boolean jmlTypeInferenceEnabled = false;
+
+    /**
+     *
+     */
+    @Getter
+    @Setter
+    private Map<String, String> compilerOptions = JavaCore.getOptions();
 
     void processJml(String p, CompilationUnit ast) {
         try {
@@ -127,11 +139,28 @@ public class JmlProject {
         this.parser = parser;
     }
 
+    private String[] classPathEntries;
+    private String[] sourceEntries;
+    private String[] encodings;
+    private boolean includeRunningVMBootClasspath;
+
+    protected void applyEnvironment() {
+        parser.setEnvironment(classPathEntries, sourceEntries, encodings, includeRunningVMBootClasspath);
+        parser.setResolveBindings(true);
+        parser.setStatementsRecovery(true);
+        parser.setBindingsRecovery(true);
+        if (compilerOptions != null)
+            parser.setCompilerOptions(compilerOptions);
+        //compilerOptions.forEach((a, b) -> {
+        //    System.out.format("%20s ==> %s\n", a, b);
+        //});
+    }
+
+
     /**
      * @see ASTParser#setEnvironment(String[], String[], String[], boolean)
      */
-    public void setEnvironment(String[] classPathEntries, String[] sourceEntries,
-                               String encoding, boolean includeRunningVMBootClasspath) {
+    public void setEnvironment(String[] classPathEntries, String[] sourceEntries, boolean includeRunningVMBootClasspath) {
         String[] encodings = new String[sourceEntries.length];
         Arrays.fill(encodings, encoding);
         for (int i = 0; i < sourceEntries.length; i++) {
@@ -140,11 +169,14 @@ public class JmlProject {
         for (int i = 0; i < classPathEntries.length; i++) {
             classPathEntries[i] = new File(classPathEntries[i]).getAbsolutePath();
         }
-        parser.setEnvironment(classPathEntries, sourceEntries, encodings, includeRunningVMBootClasspath);
+        this.classPathEntries = classPathEntries;
+        this.sourceEntries = sourceEntries;
+        this.includeRunningVMBootClasspath = includeRunningVMBootClasspath;
+        this.encodings = encodings;
     }
 
     public void setEnvironment(String... sourceEntries) {
-        setEnvironment(new String[0], sourceEntries, "utf-8", true);
+        setEnvironment(new String[0], sourceEntries, true);
     }
 
     public @Nullable List<JmlComment> getJmlSpecification(ASTNode node) {
@@ -164,6 +196,7 @@ public class JmlProject {
                 name, expr);
         parser.setUnitName(name);
         parser.setSource(source.toCharArray());
+        applyEnvironment();
         CompilationUnit cu = (CompilationUnit) parser.createAST(monitor);
         Block body = ((TypeDeclaration) cu.types().get(0)).getMethods()[0].getBody();
         try {
@@ -182,6 +215,7 @@ public class JmlProject {
                 name, statements);
         parser.setUnitName(name);
         parser.setSource(source.toCharArray());
+        applyEnvironment();
         CompilationUnit cu = (CompilationUnit) parser.createAST(monitor);
         Block body = ((TypeDeclaration) cu.types().get(0)).getMethods()[0].getBody();
         processJml(name, cu, source);
@@ -189,20 +223,37 @@ public class JmlProject {
     }
 
     public CompilationUnit compileUnit(String fileName) throws IOException {
-        ASTCollector requestor = new ASTCollector();
+        /*ASTCollector requestor = new ASTCollector();
         parser.createASTs(new String[]{fileName}, new String[]{encoding}, new String[]{"" + (++uniqueCounter)},
                 requestor, monitor);
         return requestor.getCompiledUnits().values().iterator().next();
+        parser.setBindingsRecovery(true);
+        parser.setResolveBindings(true);
+
+        byte[] b = Files.readAllBytes(Paths.get(fileName));
+        char[] contents = new String(b, Charset.defaultCharset()).toCharArray();
+        return compileUnit(fileName, contents);
+         */
+        parser.setBindingsRecovery(true);
+        parser.setResolveBindings(true);
+        return compile0("a", Collections.singletonList(fileName), "utf-8").iterator().next();
     }
 
     public CompilationUnit compileUnit(String fileName, char[] contents) {
+        /*parser.setUnitName(new File(fileName).getName().replace(".java", ""));
         parser.setSource(contents);
-        parser.setResolveBindings(true);
-        parser.setKind(ASTParser.K_COMPILATION_UNIT);
         ASTNode node = parser.createAST(monitor);
         CompilationUnit cu = (CompilationUnit) node.getRoot();
         processJml(fileName, cu, new String(contents));
-        return cu;
+        return cu*/
+        ;
+        try {
+            Files.write(Paths.get(fileName), new String(contents).getBytes());
+            return compileUnit(fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public Collection<CompilationUnit> compileFiles(String... paths) {
@@ -249,14 +300,11 @@ public class JmlProject {
         Arrays.fill(encodings, "utf-8");
 
         ASTCollector collector = new ASTCollector();
+        applyEnvironment();
         parser.createASTs(sourceFiles, encodings, bindingKeys, collector, monitor);
         Collection<CompilationUnit> cus = collector.getCompiledUnits().values();
         collector.getCompiledUnits().forEach(this::processJml);
         return cus;
-    }
-
-    public void setCompilerOptions(Map<String, String> options) {
-        parser.setCompilerOptions(options);
     }
 
     public void setStatementsRecovery(boolean enabled) {
@@ -346,6 +394,6 @@ public class JmlProject {
     }
 
     public void setEmptyEnvironment() {
-        setEnvironment(new String[0], new String[0], "utf-8", true);
+        setEnvironment(new String[0], new String[0], true);
     }
 }

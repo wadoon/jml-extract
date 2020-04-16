@@ -2,6 +2,7 @@ package jml;
 
 import jml.impl.DefaultJmlTyper;
 import jml.impl.SimpleJmlCommentPrinter;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -20,9 +21,51 @@ public class Test {
     @org.junit.jupiter.api.Test
     void testTyping() throws IOException {
         JmlProject project = JmlCore.createProject();
+        project.setMonitor(new IProgressMonitor() {
+            @Override
+            public void beginTask(String name, int totalWork) {
+                System.out.println(name + ":" + totalWork);
+            }
+
+            @Override
+            public void done() {
+                System.out.println("done");
+            }
+
+            @Override
+            public void internalWorked(double work) {
+                System.out.println("iW" + work);
+            }
+
+            @Override
+            public boolean isCanceled() {
+                return false;
+            }
+
+            @Override
+            public void setCanceled(boolean value) {
+
+            }
+
+            @Override
+            public void setTaskName(String name) {
+                System.out.println("t: " + name);
+            }
+
+            @Override
+            public void subTask(String name) {
+                System.out.println("sub " + name);
+            }
+
+            @Override
+            public void worked(int work) {
+                System.out.println(work);
+            }
+        });
         project.setJmlAstCreationEnabled(true);
         project.setJmlAttachingEnabled(true);
         project.setJmlEnabled(true);
+        project.setEnvironment(new String[0], new String[]{"../example/"}, true);
         final String fileName = "../example/JMLTest.java";
         CompilationUnit cu = project.compileUnit(fileName);
         project.processJml(fileName, cu);

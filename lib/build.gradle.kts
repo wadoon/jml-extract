@@ -22,7 +22,7 @@ tasks.generateGrammarSource {
 
 
 dependencies {
-    compile("org.eclipse.jdt:org.eclipse.jdt.core:3.20.0")
+    compile("org.eclipse.jdt:org.eclipse.jdt.core:3.21.0")
     compile("com.google.code.gson:gson:2.8.6")
     compile("org.jetbrains:annotations:13.0")
 

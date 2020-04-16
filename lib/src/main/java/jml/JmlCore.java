@@ -39,9 +39,11 @@ public class JmlCore {
     public static JmlProject createProject(String version) {
         Map<String, String> options = JavaCore.getOptions();
         JavaCore.setComplianceOptions(version, options);
-        return new JmlProject(
+        JmlProject jp = new JmlProject(
                 AST.newAST(options),
                 createParser(options));
+        jp.setCompilerOptions(options);
+        return jp;
     }
 
     public static ASTParser createParser(Map<String, String> options) {
