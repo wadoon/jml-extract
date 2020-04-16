@@ -25,6 +25,7 @@ dependencies {
     compile("org.eclipse.jdt:org.eclipse.jdt.core:3.20.0")
     compile("com.google.code.gson:gson:2.8.6")
     compile("org.jetbrains:annotations:13.0")
+    compile("org.parboiled:parboiled-java:1.3.1")
 
     /*
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))

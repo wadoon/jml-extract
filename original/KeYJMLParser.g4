@@ -144,11 +144,9 @@ behavior_spec_case: behavior_keyword generic_spec_case;
 
 generic_spec_case:
     (abbrvs=spec_var_decls)?
-    ((requires=spec_header
-      (requires_free=free_spec_header)?)
-       ( result = generic_spec_body)?
-      | result = generic_spec_body
-    )
+    (requires=spec_header (requires_free=free_spec_header)?)
+    ( result = generic_spec_body)?
+    | result = generic_spec_body
 ;
 
 
