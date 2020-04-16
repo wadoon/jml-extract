@@ -38,6 +38,8 @@ public class JmlProject {
      */
     private int uniqueCounter;
 
+    @Setter
+    @Getter
     private String encoding = "utf-8";
 
     /**

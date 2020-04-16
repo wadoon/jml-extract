@@ -107,7 +107,8 @@ public class Main implements Callable<Integer> {
         final String[] sources = getSourceEntries();
         printv(() -> "Sources: " + Arrays.toString(sources));
         printv(() -> "Classpath: " + Arrays.toString(cp));
-        p.setEnvironment(cp, sources, encoding, vmClassPath);
+        p.setEncoding(encoding);
+        p.setEnvironment(cp, sources, vmClassPath);
         try (final OutputStreamWriter out = new OutputStreamWriter(System.out)) {
             if (stdin) {
                 final String input = new String(getInputStreamAsCharArray(System.in, 4 * 1024 * 1024, encoding));
