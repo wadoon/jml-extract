@@ -26,10 +26,6 @@ dependencies {
     compile("com.google.code.gson:gson:2.8.6")
     compile("org.jetbrains:annotations:13.0")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.6.0")
-
-    compileOnly("org.jetbrains:annotations:16.0.2")
     /*
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")

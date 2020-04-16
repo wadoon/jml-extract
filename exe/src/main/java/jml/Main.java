@@ -96,7 +96,6 @@ public class Main implements Callable<Integer> {
             return 1;
         }
 
-        JmlCore.init();
         JmlProject p = JmlCore.createProject();
 
         if (showCompilerOptions) {
