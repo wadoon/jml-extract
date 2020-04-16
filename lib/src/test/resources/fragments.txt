@@ -276,7 +276,7 @@ var abc = Object::new;
           "length": 3,
           "nodeType": 43,
           "flags": 2,
-          "isVar": false,
+          "isVar": true,
           "name": {
             "class": "org.eclipse.jdt.core.dom.SimpleName",
             "start": 54,
