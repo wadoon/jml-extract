@@ -24,4 +24,11 @@ public interface IJmlAttacher {
      */
     void attach(@NotNull CompilationUnit ast,
                 @NotNull Collection<JmlComment> jmlComments);
+
+    void setAttachmentHandler(int type, Handler handler);
+
+    public interface Handler {
+
+        void attach(JmlComment c, @NotNull CompilationUnit ast);
+    }
 }

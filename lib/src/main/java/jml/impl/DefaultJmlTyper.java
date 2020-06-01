@@ -201,12 +201,12 @@ public class DefaultJmlTyper {
             if (comments != null) {
                 for (JmlComment comment : comments) {
 
-                    if (comment.getType().getMetaType() == JmlComment.MetaType.FIELD) {
+                    if (isMetaComment(comment.getType(), JmlComment.KIND_FIELD)) {
                         addInScope(comment.getContext());
                     }
 
 
-                    if (comment.getType().getMetaType() == JmlComment.MetaType.INVARIANT) {
+                    if (isMetaComment(comment.getType(), JmlComment.KIND_INVARIANT)) {
                         buffer.append("public boolean __inv_").append(counter.getAndIncrement()).append("_()");
                         addNewBlock(comment.getContext());
                     }
@@ -214,11 +214,15 @@ public class DefaultJmlTyper {
             }
         }
 
+        private boolean isMetaComment(int type, int kindInvariant) {
+            return ((type >> 8) & kindInvariant) == 0;
+        }
+
         private void handleJmlContracts(ASTNode node) {
             List<JmlComment> comments = ASTProperties.getReferencedJmlComments(node, false);
             if (comments != null) {
                 for (JmlComment comment : comments) {
-                    if (comment.getType().getMetaType() == JmlComment.MetaType.CONTRACT) {
+                    if (isMetaComment(comment.getType(), JmlComment.KIND_CONTRACT)) {
                         addNewBlock(comment.getContext());
                     }
                 }
@@ -229,8 +233,9 @@ public class DefaultJmlTyper {
             List<JmlComment> comments = ASTProperties.getReferencedJmlComments(node, false);
             if (comments != null) {
                 for (JmlComment comment : comments) {
-                    if (comment.getType() == JmlComment.Type.ASSERT || comment.getType() == JmlComment.Type.ASSUME ||
-                            comment.getType() == JmlComment.Type.GHOST_SET) {
+                    if (comment.getType() == JmlComment.TYPE_ASSERT
+                            || comment.getType() == JmlComment.TYPE_ASSUME
+                            || comment.getType() == JmlComment.TYPE_GHOST_SET) {
                         addNewBlock(comment.getContext());
                     }
                 }

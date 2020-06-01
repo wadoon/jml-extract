@@ -1,6 +1,5 @@
 package jml;
 
-import lombok.Getter;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Comment;
@@ -15,6 +14,55 @@ import java.util.Map;
  * @version 1 (2/1/20)
  */
 public class JmlComment {
+    //region constants
+    public static final int KIND_UNKNOWN = 0;
+    public static final int KIND_STATEMENT = 1;
+    public static final int KIND_CONTRACT = 2;
+    public static final int KIND_FIELD = 3;
+    public static final int KIND_METHOD = 4;
+    public static final int KIND_MODIFIER = 5;
+    public static final int KIND_INVARIANT = 6;
+
+    public static final int TYPE_UNKNOWN = (KIND_UNKNOWN << 8) | 0;
+    public static final int TYPE_GHOST_FIELD = (KIND_FIELD << 8) | 1;
+    public static final int TYPE_MODEL_FIELD = (KIND_FIELD << 8) | 2;
+    public static final int TYPE_MODEL_METHOD = (KIND_METHOD << 8) | 3;
+    public static final int TYPE_CLASS_INVARIANT = (KIND_INVARIANT << 8) | 4;
+    public static final int TYPE_LOOP_INVARIANT = (KIND_INVARIANT << 8) | 5;
+    public static final int TYPE_BLOCK_CONTRACT = (KIND_CONTRACT << 8) | 6;
+    public static final int TYPE_METHOD_CONTRACT = (KIND_CONTRACT << 8) | 7;
+    public static final int TYPE_MODIFIER = (KIND_MODIFIER << 8) | 8;
+    public static final int TYPE_GHOST_SET = (KIND_STATEMENT << 8) | 9;
+    public static final int TYPE_ASSUME = (KIND_STATEMENT << 8) | 10;
+    public static final int TYPE_ASSERT = (KIND_STATEMENT << 8) | 11;
+
+    public static final int AT_UNKNOWN = 0;
+    /**
+     *
+     */
+    public static final int AT_NEXT_DECLARATION = 1;
+    /**
+     *
+     */
+    public static final int AT_NEXT_STATEMENT = 2;
+
+    /**
+     *
+     */
+    public static final int AT_NEXT_METHOD = 3;
+    /**
+     *
+     */
+    public static final int AT_NEXT_FIELD = 4;
+    /**
+     *
+     */
+    public static final int AT_NEXT_LOOP = 5;
+    public static final int AT_NEXT_BLOCK = 6;
+    public static final int AT_CONTAINING_TYPE = 7;
+    //
+
+
     private static final String JML_TYPE = "JML_TYPE";
     private static final String JML_CONTENT = "JML_CONTENT";
     private static final String JML_ANNOTATIONS = "JML_ANNOTATION";
@@ -25,6 +73,7 @@ public class JmlComment {
     private static final String JML_AST_TYPE_ERRORS = "JML_AST_TYPE_ERRORS";
     private static final String JML_PARSER_ERRORS = "JML_PARSER_ERRORS";
     private static final String JML_EXPR_TYPES = "JML_EXPR_TYPES";
+    private static final String JML_ATTACHING_TYPE = "JML_ATTACHING_TYPE";
 
     private final Comment c;
 
@@ -53,12 +102,20 @@ public class JmlComment {
         c.setProperty(JML_CONTENT, str);
     }
 
-    public Type getType() {
-        return (Type) c.getProperty(JML_TYPE);
+    public int getType() {
+        return (int) c.getProperty(JML_TYPE);
     }
 
-    public void setType(Type type) {
+    public void setType(int type) {
         c.setProperty(JML_TYPE, type);
+    }
+
+    public int getAttachingType() {
+        return (int) c.getProperty(JML_ATTACHING_TYPE);
+    }
+
+    public void setAttachingType(int type) {
+        c.setProperty(JML_ATTACHING_TYPE, type);
     }
 
     public JmlAnnotations getAnnotations() {
@@ -88,53 +145,6 @@ public class JmlComment {
     public void setExprTypes(Map<ParserRuleContext, ITypeBinding> given) {
         wrapped().setProperty(JML_EXPR_TYPES, given);
     }
-
-
-    public enum MetaType {
-        UNKNOWN, STATEMENT, CONTRACT, FIELD, METHOD, MODIFIER, INVARIANT;
-    }
-
-    public enum AttacherType {
-        UNKNOWN,
-        NEXT_DECLARATION,
-        NEXT_STATEMENT,
-        NEXT_METHOD,
-        NEXT_FIELD,
-        NEXT_LOOP,
-        NEXT_BLOCK,
-        CONTAINING_TYPE;
-    }
-
-
-    public enum Type {
-        UNKNOWN,
-        GHOST_FIELD(AttacherType.NEXT_LOOP, MetaType.CONTRACT),
-        MODEL_FIELD(AttacherType.CONTAINING_TYPE, MetaType.FIELD),
-        MODEL_METHOD(AttacherType.CONTAINING_TYPE, MetaType.METHOD),
-        CLASS_INVARIANT(AttacherType.CONTAINING_TYPE, MetaType.INVARIANT),
-        LOOP_INVARIANT(AttacherType.NEXT_LOOP, MetaType.CONTRACT),
-        BLOCK_CONTRACT(AttacherType.NEXT_BLOCK, MetaType.CONTRACT),
-        METHOD_CONTRACT(AttacherType.NEXT_METHOD, MetaType.CONTRACT),
-        MODIFIER(AttacherType.NEXT_DECLARATION, MetaType.MODIFIER),
-        GHOST_SET(AttacherType.NEXT_STATEMENT, MetaType.STATEMENT),
-        ASSUME(AttacherType.NEXT_STATEMENT, MetaType.STATEMENT),
-        ASSERT(AttacherType.NEXT_STATEMENT, MetaType.STATEMENT);
-
-        @Getter
-        final MetaType metaType;
-        @Getter
-        final AttacherType attacherType;
-
-        Type() {
-            this(AttacherType.UNKNOWN, MetaType.UNKNOWN);
-        }
-
-        Type(AttacherType attacherType, MetaType metaType) {
-            this.attacherType = attacherType;
-            this.metaType = metaType;
-        }
-    }
-
 
     public List<JmlProblem> getTypeErrors() {
         return (List<JmlProblem>) c.getProperty(JML_AST_TYPE_ERRORS);

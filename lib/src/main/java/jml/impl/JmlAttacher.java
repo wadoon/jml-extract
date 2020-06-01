@@ -10,8 +10,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.function.Predicate;
 
+import static java.text.MessageFormat.format;
 import static org.eclipse.jdt.core.dom.ASTNode.*;
 
 /**
@@ -19,45 +21,95 @@ import static org.eclipse.jdt.core.dom.ASTNode.*;
  * @version 1 (2/1/20)
  */
 public class JmlAttacher implements IJmlAttacher {
+    private final HashMap<Integer, Handler> handlers = new HashMap<>();
+
+    public JmlAttacher() {
+        handlers.put(JmlComment.AT_CONTAINING_TYPE, new ContainingToParent());
+        handlers.put(JmlComment.AT_NEXT_LOOP, new NextLoop());
+        handlers.put(JmlComment.AT_NEXT_BLOCK, new NextBlock());
+        handlers.put(JmlComment.AT_NEXT_DECLARATION, new NextDeclaration());
+        handlers.put(JmlComment.AT_NEXT_FIELD, new NextField());
+        handlers.put(JmlComment.AT_NEXT_STATEMENT, new NextStatement());
+        handlers.put(JmlComment.AT_NEXT_METHOD, new NextMethod());
+    }
+
     @Override
-    public void attach(CompilationUnit ast, Collection<JmlComment> jmlComments) {
+    public void attach(@NotNull CompilationUnit ast, @NotNull Collection<JmlComment> jmlComments) {
         for (JmlComment c : jmlComments) {
-            attachComment(ast, c);
+            if (c.getAttachingType() == JmlComment.AT_UNKNOWN) {
+                System.err.println(
+                        format("Given jml comment has to 'attaching type'. Was the IJmlDetection not successful {0}", c.getContent()));
+            } else {
+                Handler h = handlers.get(c.getAttachingType());
+                if (h == null) {
+                    System.err.println(
+                            format("No attaching is registered for attachment type {0}.", c.getAttachingType()));
+                } else {
+                    h.attach(c, ast);
+                }
+            }
         }
     }
 
-    private void attachComment(CompilationUnit ast, JmlComment c) {
-        if (c.getType() == null) {
-            System.err.println("Given jml comment has to type. The IJmlDetection wrong? " +
-                    c.getContent());
-            return;
-        }
-
-        JmlComment.AttacherType at = c.getType().getAttacherType();
-        switch (at) {
-            case UNKNOWN:
-            case CONTAINING_TYPE:
-                attachToParent(c, TYPE_DECLARATION);
-                break;
-            case NEXT_LOOP:
-                attachToNextNode(c, WHILE_STATEMENT, FOR_STATEMENT, ENHANCED_FOR_STATEMENT, DO_STATEMENT);
-                break;
-            case NEXT_BLOCK:
-                attachToNextNode(c, BLOCK);
-            case NEXT_METHOD:
-                attachToNextMethod(c);
-                break;
-            case NEXT_DECLARATION:
-                attachToNextNode(c, FIELD_DECLARATION, METHOD_DECLARATION);
-                break;
-            case NEXT_STATEMENT:
-                insertIntoBlock(c, Statement.class);
-                break;
-        }
-
+    @Override
+    public void setAttachmentHandler(int type, IJmlAttacher.Handler handler) {
+        handlers.put(type, handler);
     }
 
-    private void insertIntoBlock(JmlComment comment, Class<?>... clazzes) {
+    //region Handlers
+    public static class ContainingToParent implements Handler {
+        @Override
+        public void attach(JmlComment c, @NotNull CompilationUnit ast) {
+            attachToParent(c, TYPE_DECLARATION);
+        }
+    }
+
+    public static class NextLoop implements Handler {
+        @Override
+        public void attach(JmlComment c, @NotNull CompilationUnit ast) {
+            attachToNextNode(c, WHILE_STATEMENT, FOR_STATEMENT, ENHANCED_FOR_STATEMENT, DO_STATEMENT);
+        }
+    }
+
+    public static class NextBlock implements Handler {
+        @Override
+        public void attach(JmlComment c, @NotNull CompilationUnit ast) {
+            attachToNextNode(c, BLOCK);
+        }
+    }
+
+    public static class NextMethod implements Handler {
+        @Override
+        public void attach(JmlComment c, @NotNull CompilationUnit ast) {
+            attachToNextMethod(c);
+        }
+    }
+
+    public static class NextDeclaration implements Handler {
+        @Override
+        public void attach(JmlComment c, @NotNull CompilationUnit ast) {
+            attachToNextNode(c, FIELD_DECLARATION, METHOD_DECLARATION);
+
+        }
+    }
+
+    public static class NextField implements Handler {
+        @Override
+        public void attach(JmlComment c, @NotNull CompilationUnit ast) {
+            attachToNextNode(c, FIELD_DECLARATION);
+        }
+    }
+
+    public static class NextStatement implements Handler {
+        @Override
+        public void attach(JmlComment c, @NotNull CompilationUnit ast) {
+            insertIntoBlock(c, Statement.class);
+        }
+    }
+    //endregion
+
+    //region Utilities
+    private static void insertIntoBlock(JmlComment comment, Class<?>... clazzes) {
         ASTNode node = narrowstContainer(comment);
         if (node == null || !(node instanceof Block)) {
             System.err.println("There is no parent so I am not able to get on following nodes.");
@@ -97,7 +149,7 @@ public class JmlAttacher implements IJmlAttacher {
         };
     }
 
-    private TypeDeclaration getTypeDeclaration(JmlComment comment) {
+    private static TypeDeclaration getTypeDeclaration(JmlComment comment) {
         final Comment c = comment.wrapped();
         CompilationUnit cu = (CompilationUnit) c.getAlternateRoot();
         for (Object o : cu.types()) {
@@ -110,7 +162,7 @@ public class JmlAttacher implements IJmlAttacher {
         return null;
     }
 
-    private void attachToNextMethod(JmlComment comment) {
+    private static void attachToNextMethod(JmlComment comment) {
         final Comment c = comment.wrapped();
         TypeDeclaration td = getTypeDeclaration(comment);
         if (td != null) {
@@ -130,7 +182,7 @@ public class JmlAttacher implements IJmlAttacher {
         }
     }
 
-    private void attachToNextNode(JmlComment comment, int... types) {
+    private static void attachToNextNode(JmlComment comment, int... types) {
         ASTNode node = nodeAfter(comment);
         if (node == null) {
             System.err.println("There is no parent so I am not able to get on following nodes.");
@@ -153,13 +205,13 @@ public class JmlAttacher implements IJmlAttacher {
      *
      * @param comment
      */
-    private void attachToParent(JmlComment comment, int... types) {
+    private static void attachToParent(JmlComment comment, int... types) {
         Predicate<ASTNode> allowedNode = createTypePredicate(types);
         attachToParent(comment, allowedNode);
     }
 
     @NotNull
-    private Predicate<ASTNode> createTypePredicate(int[] types) {
+    private static Predicate<ASTNode> createTypePredicate(int[] types) {
         if (types.length == 0) {
             return it -> true;
         }
@@ -174,7 +226,7 @@ public class JmlAttacher implements IJmlAttacher {
         };
     }
 
-    private void attachToParent(JmlComment comment, Predicate<ASTNode> predicate) {
+    private static void attachToParent(JmlComment comment, Predicate<ASTNode> predicate) {
         ASTNode current = nodeAfter(comment);
         do {
             if (current != null && predicate.test(current)) {
@@ -186,17 +238,19 @@ public class JmlAttacher implements IJmlAttacher {
         System.err.println("Could not attach comment to any of its parent nodes.");
     }
 
-    private @Nullable ASTNode narrowstContainer(JmlComment comment) {
+    private @Nullable
+    static ASTNode narrowstContainer(JmlComment comment) {
         Find f = new Find(comment.getStartPosition(), comment.getStartPosition() + comment.getLength());
         comment.wrapped().getAlternateRoot().accept(f);
         return f.lastContainer;
     }
 
-    private ASTNode nodeAfter(JmlComment comment) {
+    private static ASTNode nodeAfter(JmlComment comment) {
         Find f = new Find(comment.getStartPosition(), comment.getStartPosition() + comment.getLength());
         comment.wrapped().getAlternateRoot().accept(f);
         return f.found;
     }
+    //endregion
 }
 
 class Find extends ASTVisitor {

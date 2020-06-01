@@ -1,6 +1,5 @@
 package jml.services;
 
-import jml.JmlComment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,9 +42,17 @@ public interface IJmlDetection {
      * Determines the type of a comment. Needed for a sensful attaching to {@link org.eclipse.jdt.core.dom.ASTNode}s.
      * <p>
      * Allow to return null if the given comment is not JML. Otherwise a non-null element is expected.
-     * If no type could be classified then {@link jml.JmlComment.Type#UNKNOWN} should be returned.
+     * If no type could be classified then {@link jml.JmlComment.TYPE_UNKNOWN} should be returned.
      *
      * @param comment a non-null string
+     * @return
      */
-    @Nullable JmlComment.Type getType(@NotNull String comment);
+    int getType(@NotNull String comment);
+
+    /**
+     *
+     * @param comment
+     * @return
+     */
+    int getAttachingType(@NotNull String comment, int type);
 }

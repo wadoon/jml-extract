@@ -103,7 +103,7 @@ public class JmlProject {
             String str = sourceCode.substring(c.getStartPosition(), c.getStartPosition() + c.getLength());
             if (detection.isJmlComment(str)) {
                 final JmlComment jc = ASTProperties.wrap(c);
-                final JmlComment.Type type = detection.getType(str);
+                final int type = detection.getType(str);
                 jc.setEnabled(true);
                 jc.setContent(str);
                 jc.setType(type);

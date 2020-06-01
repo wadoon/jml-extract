@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import static jml.JmlComment.*;
+
 /**
  * @author Alexander Weigl
  * @version 1 (1/31/20)
@@ -48,7 +50,7 @@ public class SimpleJmlDetection implements IJmlDetection {
     }
 
     @Override
-    public JmlComment.Type getType(String comment) {
+    public int getType(String comment) {
         KeyJmlLexer lexer = new KeyJmlLexer(CharStreams.fromString(comment));
         boolean onlyModifier = true;
         Token tok;
@@ -69,32 +71,32 @@ public class SimpleJmlDetection implements IJmlDetection {
                 case KeyJmlLexer.NORMAL_BEHAVIOR:
                 case KeyJmlLexer.EXCEPTIONAL_BEHAVIOR:
                 case KeyJmlLexer.MODEL_BEHAVIOR:
-                    return JmlComment.Type.METHOD_CONTRACT;
+                    return JmlComment.TYPE_METHOD_CONTRACT;
                 case KeyJmlLexer.BREAK_BEHAVIOR:
                 case KeyJmlLexer.CONTINUE_BEHAVIOR:
                 case KeyJmlLexer.RETURN_BEHAVIOR:
-                    return JmlComment.Type.BLOCK_CONTRACT;
+                    return JmlComment.TYPE_BLOCK_CONTRACT;
 
                 case KeyJmlLexer.ASSERT_:
-                    return JmlComment.Type.ASSERT;
+                    return JmlComment.TYPE_ASSERT;
 
                 case KeyJmlLexer.MODEL:
                 case KeyJmlLexer.MODEL_METHOD_AXIOM:
-                    return JmlComment.Type.MODEL_FIELD; //TODO decide between field or method
+                    return JmlComment.TYPE_MODEL_FIELD; //TODO decide between field or method
 
                 case KeyJmlLexer.INVARIANT:
                 case KeyJmlLexer.CONSTRAINT:
                 case KeyJmlLexer.INITIALLY:
                 case KeyJmlLexer.AXIOM:
-                    return JmlComment.Type.CLASS_INVARIANT;
+                    return JmlComment.TYPE_CLASS_INVARIANT;
 
                 case KeyJmlLexer.GHOST:
-                    return JmlComment.Type.GHOST_FIELD;
+                    return JmlComment.TYPE_GHOST_FIELD;
                 case KeyJmlLexer.LOOP_INVARIANT:
-                    return JmlComment.Type.LOOP_INVARIANT;
+                    return JmlComment.TYPE_LOOP_INVARIANT;
 
                 case KeyJmlLexer.SET:
-                    return JmlComment.Type.GHOST_SET;
+                    return JmlComment.TYPE_GHOST_SET;
 
                 case KeyJmlLexer.PACKAGE:
                 case KeyJmlLexer.PUBLIC:
@@ -119,8 +121,35 @@ public class SimpleJmlDetection implements IJmlDetection {
         } while (tok.getType() != Token.EOF);
 
         if (onlyModifier)
-            return JmlComment.Type.MODIFIER;
+            return JmlComment.TYPE_MODIFIER;
 
-        return JmlComment.Type.UNKNOWN;
+        return JmlComment.TYPE_UNKNOWN;
+    }
+
+    @Override
+    public int getAttachingType(@NotNull String comment, int type) {
+        switch (type) {
+            case TYPE_ASSERT:
+            case TYPE_ASSUME:
+            case TYPE_GHOST_SET:
+                return AT_NEXT_STATEMENT;
+            case TYPE_BLOCK_CONTRACT:
+                return AT_NEXT_BLOCK;
+            case TYPE_LOOP_INVARIANT:
+                return AT_NEXT_LOOP;
+            case TYPE_GHOST_FIELD:
+            case TYPE_MODEL_METHOD:
+            case TYPE_CLASS_INVARIANT:
+                return AT_CONTAINING_TYPE;
+            case TYPE_MODEL_FIELD:
+                return AT_NEXT_FIELD;
+            case TYPE_MODIFIER:
+                return AT_NEXT_DECLARATION;
+            case TYPE_METHOD_CONTRACT:
+                return AT_NEXT_METHOD;
+            case TYPE_UNKNOWN:
+                return AT_UNKNOWN;
+        }
+        return 0;
     }
 }
