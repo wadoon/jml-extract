@@ -2,22 +2,10 @@ import java.io.File
 
 plugins {
     `java-library`
-    antlr
-}
-
-tasks.generateGrammarSource {
-    maxHeapSize = "64m"
-    arguments = arguments + listOf("-visitor", "-long-messages", "-package", "jml")
-    outputDirectory = File(buildDir.toString() + "/generated-src/antlr/main/jml/")
 }
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.generateGrammarSource {
-    maxHeapSize = "1G"
-    arguments = arguments + listOf("-long-messages", "-Xlog", "-atn")
 }
 
 
@@ -25,6 +13,7 @@ dependencies {
     compile("org.eclipse.jdt:org.eclipse.jdt.core:3.21.0")
     compile("com.google.code.gson:gson:2.8.6")
     compile("org.jetbrains:annotations:13.0")
+    compile("org.parboiled:parboiled-java:1.3.1")
 
     /*
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
@@ -33,8 +22,6 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     */
 
-    compile("org.antlr:antlr4-runtime:4.7.2")
-    antlr("org.antlr:antlr4:4.7.2")
     compileOnly("org.projectlombok:lombok:1.18.10")
     annotationProcessor("org.projectlombok:lombok:1.18.10")
 }
