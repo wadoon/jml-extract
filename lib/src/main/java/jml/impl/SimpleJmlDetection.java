@@ -1,11 +1,8 @@
 package jml.impl;
 
 import jml.JmlComment;
-import jml.KeyJmlLexer;
 import jml.services.IJmlDetection;
 import lombok.var;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.Token;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -51,7 +48,7 @@ public class SimpleJmlDetection implements IJmlDetection {
 
     @Override
     public int getType(String comment) {
-        KeyJmlLexer lexer = new KeyJmlLexer(CharStreams.fromString(comment));
+        /*KeyJmlLexer lexer = new KeyJmlLexer(CharStreams.fromString(comment));
         boolean onlyModifier = true;
         Token tok;
         do {
@@ -122,7 +119,7 @@ public class SimpleJmlDetection implements IJmlDetection {
 
         if (onlyModifier)
             return JmlComment.TYPE_MODIFIER;
-
+        */
         return JmlComment.TYPE_UNKNOWN;
     }
 

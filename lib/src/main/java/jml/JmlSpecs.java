@@ -1,11 +1,6 @@
 package jml;
 
-import org.antlr.v4.runtime.ParserRuleContext;
-
 import java.util.BitSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -14,10 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  * http://www.eecs.ucf.edu/~leavens/JML/jmlrefman/jmlrefman_6.html#SEC41
  */
 public class JmlSpecs {
-    private Map<ParserRuleContext, Object> types = new HashMap<>();
+    /*private Map<ParserRuleContext, Object> types = new HashMap<>();
     private List<ParserRuleContext>
             classInvariant, axioms, models, loopInvariant, commands;
-
+*/
     private BitSet modifiers = new BitSet();
 
     public boolean hasModifier(int type) {

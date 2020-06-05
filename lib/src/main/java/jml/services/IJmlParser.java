@@ -2,7 +2,6 @@ package jml.services;
 
 import jml.JmlComment;
 import jml.JmlSpecs;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -24,8 +23,4 @@ public interface IJmlParser {
      * @param comment a jml comment
      */
     void create(@NotNull JmlComment comment);
-
-    default void update(@NotNull ParserRuleContext ctx, @NotNull JmlSpecs target) {
-        //unused at the moment
-    }
 }

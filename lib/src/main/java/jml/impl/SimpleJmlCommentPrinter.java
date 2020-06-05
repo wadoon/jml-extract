@@ -17,7 +17,7 @@ public class SimpleJmlCommentPrinter implements IJmlCommentPrinter {
                 buf.append("\n").append(indent);
                 buf.append("/*").append(comment.getAnnotations()).append("*/");
                 buf.append("\n").append(indent);
-                buf.append("/*").append(comment.getContext().getText()).append("*/");
+                //buf.append("/*").append(comment.getContext().getText()).append("*/");
                 buf.append("\n").append(indent);
                 buf.append("/*").append(comment.getParserErrors()).append("*/");
             }

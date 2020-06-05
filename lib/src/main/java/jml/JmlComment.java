@@ -1,6 +1,5 @@
 package jml;
 
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -138,11 +137,11 @@ public class JmlComment {
         return c;
     }
 
-    public Map<ParserRuleContext, org.eclipse.jdt.core.dom.Type> getExprTypes() {
-        return (Map<ParserRuleContext, org.eclipse.jdt.core.dom.Type>) wrapped().getProperty(JML_EXPR_TYPES);
+    public Map<Object, org.eclipse.jdt.core.dom.Type> getExprTypes() {
+        return (Map<Object, org.eclipse.jdt.core.dom.Type>) wrapped().getProperty(JML_EXPR_TYPES);
     }
 
-    public void setExprTypes(Map<ParserRuleContext, ITypeBinding> given) {
+    public void setExprTypes(Map<Object, ITypeBinding> given) {
         wrapped().setProperty(JML_EXPR_TYPES, given);
     }
 
@@ -154,14 +153,13 @@ public class JmlComment {
         c.setProperty(JML_AST_TYPE_ERRORS, seq);
     }
 
-    public ParserRuleContext getContext() {
-        return (ParserRuleContext) c.getProperty(JML_AST);
+    public Object getContext() {
+        return (Object) c.getProperty(JML_AST);
     }
 
-    public void setContext(ParserRuleContext ctx) {
+    public void setContext(Object ctx) {
         c.setProperty(JML_AST, ctx);
     }
-
 
     public ASTNode getEffectedNode() {
         return (ASTNode) c.getProperty(JML_EFFECTS_ON);

@@ -53,7 +53,8 @@ public class AstSerializer extends ASTVisitor {
         if (seq != null) {
             var jmlComments = new ArrayList<>(seq.size());
             seq.forEach(c -> {
-                final JmlSerializer jmlSerializer = new JmlSerializer(c.getStartPosition());
+                //TODO c.getStartPosition()
+                final JmlSerializer jmlSerializer = new JmlSerializer(/*TODO*/);
                 var jc = new HashMap<String, Object>(6);
                 jc.put("startPosition", c.getStartPosition());
                 jc.put("length", c.getLength());
@@ -61,7 +62,7 @@ public class AstSerializer extends ASTVisitor {
                 jc.put("annotations", c.getAnnotations());
                 jc.put("content", c.getContent());
                 if (c.getContext() != null) {
-                    jc.put("ast", c.getContext().accept(jmlSerializer));
+                    //TODO jc.put("ast", c.getContext().accept(jmlSerializer));
                 }
                 jc.put("parsing_errors", c.getParserErrors());
                 jmlComments.add(jc);
