@@ -35,8 +35,6 @@ public class JmlAst {
     }
 
     @Data
-    @Immutable
-    @Builder
     @AllArgsConstructor
     public static class UnaryExpr extends Expr {
         private int operator;
